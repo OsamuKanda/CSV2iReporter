@@ -1,0 +1,663 @@
+{
+    // ConMasWebAPIの設定
+    "ConMasWeb": {
+        // ConMasWebAPIの要求先
+        "Address": "https://ircl033i6w.conmas-i-reporter.com/ConMasAPIZ5F86K/Rests/APIExecute.aspx",
+        // ConMasWebAPIのログインユーザーＩＤ
+        "User": "TC_admin",
+        // ConMasWebAPIのログインパスワード
+        "Pass": "0resama"
+        // Proxyの設定
+        // Proxyサーバのアドレス
+        //"ProxyServer": "",
+        //// Proxyサーバの認証ユーザ
+        //"ProxyUserName": "",
+        //// Proxyサーバの認証パスワード
+        //"ProxyPassword": "",
+        //// Proxyサーバの認証ドメイン
+        //"ProxyDomain": ""
+        // Proxyサーバのアドレス
+        //"ProxyServer": "",
+        //// Proxyサーバの認証ユーザ
+        //"ProxyUserName": "",
+        //// Proxyサーバの認証パスワード
+        //"ProxyPassword": "",
+        //// Proxyサーバの認証ドメイン
+        //"ProxyDomain": ""
+
+    },
+    // ログ出力の設定
+    "Log": {
+        // ログ出力フォルダ
+        "Path": "LOG\\LOG.txt",
+        // ログ出力レベル（E:エラーのみ W:警告のみ I:エラー,警告,情報 N:出力なし）
+        "LogLevel": "I"
+    },
+    // 自動帳票作成の設定
+    "iRepoLink": {
+        // 変換元ファイルが保存されたフォルダ名
+        "SourceFileFolder": ".\\Request",
+        // 変換元ファイル名（ワイルドカード可）（拡張子はcsvまたはxlsxまたは*）
+        "SourceFileName": "*.*",
+        // 変換正常終了後のExcelファイルの移動先
+        "OkFileForder": ".\\OK",
+        // 変換異常終了後のExcelファイルの移動先
+        "ErrorFileFolder": ".\\NG",
+        // データ転送元Excelファイルの処理対象シート名
+        "ExcelSheetName": "Sheet1",
+        // データ転送元CSVファイルのエンコード（SJISまたはUTF8）
+        "CsvFileEncode": "SJIS",
+        // Excelシートのヘッダ行数
+        "HeaderRowCount": 1,
+        // データ転送先の帳票定義ID
+        "defTopId": 151,
+        // 生成される帳票名称
+        //"repTopName": "$defTopName$_$Pyy$$PMM$$Pdd$$PHH$$Pmm$$Pss$_$cluster[13]$_$remarks[2]$_$yy$$MM$$dd$$HH$$mm$$ss$",
+        "repTopName": "$cluster[6]$_$cluster[3]$_$cluster[0]$",
+        // ラベル生成情報
+        "LabelName": {
+            "KeyColumn": [
+                {
+                    "Key": "{依頼日}",
+                    "ColumnNo": 4,
+                    "Length": 8
+                },
+                {
+                    "Key": "{依頼者名}",
+                    "ColumnNo": 7,
+                    "Length": -1
+                },
+                {
+                    "Key": "{伝票No}",
+                    "ColumnNo": 1,
+                    "Length": -1
+                }
+            ],
+            // 入力前　→　溶解or配合/依頼日/依頼者/伝票NO（自動帳票作成時はコレ）
+            // 入力中　→　溶解or配合/入力中or入力完了/依頼日/依頼者/伝票NO
+            // 完了　　→　溶解or配合/依頼日/依頼者/伝票NO
+            "LabelString": "配合/{依頼日}/{依頼者名}/{伝票No}"
+        },
+        // 転送元のExcel列からクラスターに割り当てる情報
+        "FromTo": [
+            {
+                // 変換元ファイルのカラムNo（A列＝１）
+                "columnNo": "1",
+                // 変換先帳票のシートNo
+                "sheetNo": "3",
+                // 変換先帳票のクラスターNo
+                "clusterID": "0"
+            },
+            {
+                "columnNo": "2",
+                "sheetNo": "3",
+                "clusterID": "1"
+            },
+            {
+                "columnNo": "3",
+                "sheetNo": "3",
+                "clusterID": "2"
+            },
+            {
+                "columnNo": "4",
+                "sheetNo": "3",
+                "clusterID": "3"
+            },
+            {
+                "columnNo": "5",
+                "sheetNo": "3",
+                "clusterID": "4"
+            },
+            {
+                "columnNo": "6",
+                "sheetNo": "3",
+                "clusterID": "5"
+            },
+            {
+                "columnNo": "7",
+                "sheetNo": "3",
+                "clusterID": "6"
+            },
+            {
+                "columnNo": "8",
+                "sheetNo": "3",
+                "clusterID": "7"
+            },
+            {
+                "columnNo": "9",
+                "sheetNo": "3",
+                "clusterID": "8"
+            },
+            {
+                "columnNo": "10",
+                "sheetNo": "3",
+                "clusterID": "9"
+            },
+            {
+                "columnNo": "11",
+                "sheetNo": "3",
+                "clusterID": "10"
+            },
+            {
+                "columnNo": "12",
+                "sheetNo": "3",
+                "clusterID": "11"
+            },
+            {
+                "columnNo": "13",
+                "sheetNo": "3",
+                "clusterID": "12"
+            },
+            {
+                "columnNo": "14",
+                "sheetNo": "3",
+                "clusterID": "13"
+            },
+            {
+                "columnNo": "15",
+                "sheetNo": "3",
+                "clusterID": "14"
+            },
+            {
+                "columnNo": "16",
+                "sheetNo": "3",
+                "clusterID": "15"
+            },
+            {
+                "columnNo": "17",
+                "sheetNo": "3",
+                "clusterID": "16"
+            },
+            {
+                "columnNo": "18",
+                "sheetNo": "3",
+                "clusterID": "17"
+            },
+            {
+                "columnNo": "19",
+                "sheetNo": "3",
+                "clusterID": "18"
+            },
+            {
+                "columnNo": "20",
+                "sheetNo": "3",
+                "clusterID": "19"
+            },
+            {
+                "columnNo": "21",
+                "sheetNo": "3",
+                "clusterID": "20"
+            },
+            {
+                "columnNo": "22",
+                "sheetNo": "3",
+                "clusterID": "21"
+            },
+            {
+                "columnNo": "23",
+                "sheetNo": "3",
+                "clusterID": "22"
+            },
+            {
+                "columnNo": "24",
+                "sheetNo": "3",
+                "clusterID": "23"
+            },
+            {
+                "columnNo": "25",
+                "sheetNo": "3",
+                "clusterID": "24"
+            },
+            {
+                "columnNo": "26",
+                "sheetNo": "3",
+                "clusterID": "25"
+            },
+            {
+                "columnNo": "27",
+                "sheetNo": "3",
+                "clusterID": "26"
+            },
+            {
+                "columnNo": "28",
+                "sheetNo": "3",
+                "clusterID": "27"
+            },
+            {
+                "columnNo": "29",
+                "sheetNo": "3",
+                "clusterID": "28"
+            },
+            {
+                "columnNo": "30",
+                "sheetNo": "3",
+                "clusterID": "29"
+            },
+            {
+                "columnNo": "31",
+                "sheetNo": "3",
+                "clusterID": "30"
+            },
+            {
+                "columnNo": "32",
+                "sheetNo": "3",
+                "clusterID": "31"
+            },
+            {
+                "columnNo": "33",
+                "sheetNo": "3",
+                "clusterID": "32"
+            },
+            {
+                "columnNo": "34",
+                "sheetNo": "3",
+                "clusterID": "33"
+            },
+            {
+                "columnNo": "35",
+                "sheetNo": "3",
+                "clusterID": "34"
+            },
+            {
+                "columnNo": "36",
+                "sheetNo": "3",
+                "clusterID": "35"
+            },
+            {
+                "columnNo": "37",
+                "sheetNo": "3",
+                "clusterID": "36"
+            },
+            {
+                "columnNo": "38",
+                "sheetNo": "3",
+                "clusterID": "37"
+            },
+            {
+                "columnNo": "39",
+                "sheetNo": "3",
+                "clusterID": "38"
+            },
+            {
+                "columnNo": "40",
+                "sheetNo": "3",
+                "clusterID": "39"
+            },
+            {
+                "columnNo": "41",
+                "sheetNo": "3",
+                "clusterID": "40"
+            },
+            {
+                "columnNo": "42",
+                "sheetNo": "3",
+                "clusterID": "41"
+            },
+            {
+                "columnNo": "43",
+                "sheetNo": "3",
+                "clusterID": "42"
+            },
+            {
+                "columnNo": "44",
+                "sheetNo": "3",
+                "clusterID": "43"
+            },
+            {
+                "columnNo": "45",
+                "sheetNo": "3",
+                "clusterID": "44"
+            },
+            {
+                "columnNo": "46",
+                "sheetNo": "3",
+                "clusterID": "45"
+            },
+            {
+                "columnNo": "47",
+                "sheetNo": "3",
+                "clusterID": "46"
+            },
+            {
+                "columnNo": "48",
+                "sheetNo": "3",
+                "clusterID": "47"
+            },
+            {
+                "columnNo": "49",
+                "sheetNo": "3",
+                "clusterID": "48"
+            },
+            {
+                "columnNo": "50",
+                "sheetNo": "3",
+                "clusterID": "49"
+            },
+            {
+                "columnNo": "51",
+                "sheetNo": "3",
+                "clusterID": "50"
+            },
+            {
+                "columnNo": "52",
+                "sheetNo": "3",
+                "clusterID": "51"
+            },
+            {
+                "columnNo": "53",
+                "sheetNo": "3",
+                "clusterID": "52"
+            },
+            {
+                "columnNo": "54",
+                "sheetNo": "3",
+                "clusterID": "53"
+            },
+            {
+                "columnNo": "55",
+                "sheetNo": "3",
+                "clusterID": "54"
+            },
+            {
+                "columnNo": "56",
+                "sheetNo": "3",
+                "clusterID": "55"
+            },
+            {
+                "columnNo": "57",
+                "sheetNo": "3",
+                "clusterID": "56"
+            },
+            {
+                "columnNo": "58",
+                "sheetNo": "3",
+                "clusterID": "57"
+            },
+            {
+                "columnNo": "59",
+                "sheetNo": "3",
+                "clusterID": "58"
+            },
+            {
+                "columnNo": "60",
+                "sheetNo": "3",
+                "clusterID": "59"
+            },
+            {
+                "columnNo": "61",
+                "sheetNo": "3",
+                "clusterID": "60"
+            },
+            {
+                "columnNo": "62",
+                "sheetNo": "3",
+                "clusterID": "61"
+            },
+            {
+                "columnNo": "63",
+                "sheetNo": "3",
+                "clusterID": "62"
+            },
+            {
+                "columnNo": "64",
+                "sheetNo": "3",
+                "clusterID": "63"
+            },
+            {
+                "columnNo": "65",
+                "sheetNo": "3",
+                "clusterID": "64"
+            },
+            {
+                "columnNo": "66",
+                "sheetNo": "3",
+                "clusterID": "65"
+            },
+            {
+                "columnNo": "67",
+                "sheetNo": "3",
+                "clusterID": "66"
+            },
+            {
+                "columnNo": "68",
+                "sheetNo": "3",
+                "clusterID": "67"
+            },
+            {
+                "columnNo": "69",
+                "sheetNo": "3",
+                "clusterID": "68"
+            },
+            {
+                "columnNo": "70",
+                "sheetNo": "3",
+                "clusterID": "69"
+            },
+            {
+                "columnNo": "71",
+                "sheetNo": "3",
+                "clusterID": "70"
+            },
+            {
+                "columnNo": "72",
+                "sheetNo": "3",
+                "clusterID": "71"
+            },
+            {
+                "columnNo": "73",
+                "sheetNo": "3",
+                "clusterID": "72"
+            },
+            {
+                "columnNo": "74",
+                "sheetNo": "3",
+                "clusterID": "73"
+            },
+            {
+                "columnNo": "75",
+                "sheetNo": "3",
+                "clusterID": "74"
+            },
+            {
+                "columnNo": "76",
+                "sheetNo": "3",
+                "clusterID": "75"
+            },
+            {
+                "columnNo": "77",
+                "sheetNo": "3",
+                "clusterID": "76"
+            },
+            {
+                "columnNo": "78",
+                "sheetNo": "3",
+                "clusterID": "77"
+            },
+            {
+                "columnNo": "79",
+                "sheetNo": "3",
+                "clusterID": "78"
+            },
+            {
+                "columnNo": "80",
+                "sheetNo": "3",
+                "clusterID": "79"
+            },
+            {
+                "columnNo": "81",
+                "sheetNo": "3",
+                "clusterID": "80"
+            },
+            {
+                "columnNo": "82",
+                "sheetNo": "3",
+                "clusterID": "81"
+            },
+            {
+                "columnNo": "83",
+                "sheetNo": "3",
+                "clusterID": "82"
+            },
+            {
+                "columnNo": "84",
+                "sheetNo": "3",
+                "clusterID": "83"
+            },
+            {
+                "columnNo": "85",
+                "sheetNo": "3",
+                "clusterID": "84"
+            },
+            {
+                "columnNo": "86",
+                "sheetNo": "3",
+                "clusterID": "85"
+            },
+            {
+                "columnNo": "87",
+                "sheetNo": "3",
+                "clusterID": "86"
+            },
+            {
+                "columnNo": "88",
+                "sheetNo": "3",
+                "clusterID": "87"
+            },
+            {
+                "columnNo": "89",
+                "sheetNo": "3",
+                "clusterID": "88"
+            },
+            {
+                "columnNo": "90",
+                "sheetNo": "3",
+                "clusterID": "89"
+            },
+            {
+                "columnNo": "91",
+                "sheetNo": "3",
+                "clusterID": "90"
+            },
+            {
+                "columnNo": "92",
+                "sheetNo": "3",
+                "clusterID": "91"
+            },
+            {
+                "columnNo": "93",
+                "sheetNo": "3",
+                "clusterID": "92"
+            },
+            {
+                "columnNo": "94",
+                "sheetNo": "3",
+                "clusterID": "93"
+            },
+            {
+                "columnNo": "95",
+                "sheetNo": "3",
+                "clusterID": "94"
+            },
+            {
+                "columnNo": "96",
+                "sheetNo": "3",
+                "clusterID": "95"
+            },
+            {
+                "columnNo": "97",
+                "sheetNo": "3",
+                "clusterID": "96"
+            },
+            {
+                "columnNo": "98",
+                "sheetNo": "3",
+                "clusterID": "97"
+            },
+            {
+                "columnNo": "99",
+                "sheetNo": "3",
+                "clusterID": "98"
+            },
+            {
+                "columnNo": "100",
+                "sheetNo": "3",
+                "clusterID": "99"
+            },
+            {
+                "columnNo": "101",
+                "sheetNo": "3",
+                "clusterID": "100"
+            },
+            {
+                "columnNo": "102",
+                "sheetNo": "3",
+                "clusterID": "101"
+            },
+            {
+                "columnNo": "103",
+                "sheetNo": "3",
+                "clusterID": "102"
+            },
+            {
+                "columnNo": "104",
+                "sheetNo": "3",
+                "clusterID": "103"
+            },
+            {
+                "columnNo": "105",
+                "sheetNo": "3",
+                "clusterID": "104"
+            },
+            {
+                "columnNo": "106",
+                "sheetNo": "3",
+                "clusterID": "105"
+            },
+            {
+                "columnNo": "107",
+                "sheetNo": "3",
+                "clusterID": "106"
+            },
+            {
+                "columnNo": "108",
+                "sheetNo": "3",
+                "clusterID": "107"
+            },
+            {
+                "columnNo": "109",
+                "sheetNo": "3",
+                "clusterID": "108"
+            },
+            {
+                "columnNo": "110",
+                "sheetNo": "3",
+                "clusterID": "109"
+            },
+            {
+                "columnNo": "111",
+                "sheetNo": "3",
+                "clusterID": "110"
+            },
+            {
+                "columnNo": "112",
+                "sheetNo": "3",
+                "clusterID": "111"
+            },
+            {
+                "columnNo": "113",
+                "sheetNo": "3",
+                "clusterID": "112"
+            },
+            {
+                "columnNo": "114",
+                "sheetNo": "3",
+                "clusterID": "113"
+            },
+            {
+                "Value": "配合",
+                "sheetNo": "3",
+                "clusterID": "114"
+            }
+        ]
+    }
+}

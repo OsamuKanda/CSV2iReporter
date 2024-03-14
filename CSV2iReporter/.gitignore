@@ -1,0 +1,15 @@
+*.user
+*.log
+*.lck
+.suo
+.vs/
+bin/
+obj/
+packages/
+MesUnitDeveiceTagCsvFileMake/MesUnitDeveiceTagCsvFileMake/ExcelFiles/___BNCシステムデータベース設計書.xlsm
+MesUnitDeveiceTagCsvFileMake/MesUnitDeveiceTagCsvFileMake/ExcelFiles/___後工程からDBに送るデータ.xlsx
+MesUnitDeveiceTagCsvFileMake/MesUnitDeveiceTagCsvFileMake/ExcelFiles/情報連携機能設定ツール用.xlsx
+MesUnitDeveiceTagCsvFileMake/MesUnitDeveiceTagCsvFileMake/ExcelFiles/BNCシステムデータベース設計書.xlsm
+MesUnitDeveiceTagCsvFileMake/MesUnitDeveiceTagCsvFileMake/ExcelFiles/後工程からDBに送るデータ.xlsx
+*.suo
+AutoTestApp/AutoTestApp.BlazorServer/LOG/
