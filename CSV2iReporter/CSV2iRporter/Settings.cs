@@ -1,13 +1,42 @@
 ﻿//using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using Microsoft.Extensions.Configuration;
+using System.Text.Json.Serialization;
 
 namespace CSV2iReporter; 
 /// <summary>
-/// 転送元のExcel列からクラスターに割り当てるデータ
+/// 転送元の列からクラスターに割り当てるデータ
 /// </summary>
 public class FromTo {
+
     /// <summary>
-    /// 変換元ファイルのカラムNo（１列目＝１）
+    /// 引数無しのコンストラクタ
+    /// </summary>
+    public FromTo() { }
+
+
+    /// <summary>
+    /// 引数をすべて指定するコンストラクタ
+    /// </summary>
+    /// <param name="columnNo"></param>
+    /// <param name="sheetNo"></param>
+    /// <param name="clusterID"></param>
+    /// <param name="fromDateFormat"></param>
+    /// <param name="toDateFormat"></param>
+    public FromTo(int columnNo, int sheetNo, int clusterID, string? fromDateFormat, string? toDateFormat) {
+        ColumnNo = columnNo;
+        SheetNo = sheetNo;
+        ClusterID = clusterID;
+        FromDateFormat = fromDateFormat;
+        ToDateFormat = toDateFormat;
+    }
+    //FromDateFormatとToDateFormatを指定しないコンストラクタ
+    public FromTo(int columnNo, int sheetNo, int clusterID) : this(columnNo, sheetNo, clusterID, null, null) { }
+
+    //ToDateFormatを指定しないコンストラクタ
+    public FromTo(int columnNo, int sheetNo, int clusterID, string fromDateFormat) : this(columnNo, sheetNo, clusterID, fromDateFormat, null) { }
+
+    /// <summary>
+    /// 変換元ファイルのカラム名または番号（列名または1～の名称）
     /// </summary>
     public int ColumnNo { get; set; }
 
@@ -24,104 +53,13 @@ public class FromTo {
     /// <summary>
     /// 日付型の場合の入力フォーマット
     /// </summary>
-    public string? FromFormat { get; set; }
+    public string? FromDateFormat { get; set; }
 
     /// <summary>
     /// 日付型の場合の入力フォーマット
     /// </summary>
-    public string? ToFormat { get; set; }
-}
-
-/// <summary>
-/// ヘッダー部
-/// </summary>
-public class RemarksHeader {
-    public List<KeyColumn> KeyColumn { get; set; } = null!;
-    public List<RemarksDetail> Remarks { get; set; } = null!;
-}
-/// <summary>
-/// 明細部
-/// </summary>
-public class RemarksDetail {
-    public int Index { get; set; }
-    public string? Format { get; set; }
-    public string? Value { get; set; }
-}
-
-/// <summary>
-/// ラベル文字置換情報
-/// </summary>
-public class KeyColumn {
-    /// <summary>
-    /// 置換文字列
-    /// </summary>
-    public string Key { get; set; } = null!;
-    /// <summary>
-    /// 置換データ取得型位置
-    /// </summary>
-    public int ColumnNo { get; set; }
-
-    /// <summary>
-    /// 日付文字列の入力フォーマット
-    /// </summary>
-    public string? FromDateFormat { get; set; }
-
-    /// <summary>
-    /// 日付文字列の出力フォーマット
-    /// </summary>
     public string? ToDateFormat { get; set; }
-
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    public KeyColumn() {
-    }
-
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    /// <param name="key"></param>
-    /// <param name="column"></param>
-    public KeyColumn(string key, int column, string? fromDateFormat, string? toDateFormat) {
-        this.Key = key;
-        this.ColumnNo = column;
-        this.FromDateFormat = fromDateFormat;
-        this.ToDateFormat = toDateFormat;
-    }
-
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    /// <param name="key"></param>
-    /// <param name="column"></param>
-    public KeyColumn(string key, int column) : this(key,column,null,null)
-    {
-    }
 }
-
-///// <summary>
-///// ラベル情報
-///// </summary>
-//public class LabelName {
-//    /// <summary>
-//    /// ラベル文字置換情報
-//    /// </summary>
-//    public List<KeyColumn> keyColumn { get; }
-//    /// <summary>
-//    /// ラベルベース文字列
-//    /// </summary>
-//    public string labelString { get; }
-//    /// <summary>
-//    /// コンストラクタ
-//    /// </summary>
-//    /// <param name="keyColumn"></param>
-//    /// <param name="labelString"></param>
-//    public LabelName(List<KeyColumn> keyColumn, string labelString) {
-//        this.keyColumn = keyColumn;
-//        this.labelString = labelString;
-//    }
-//}
-
 
 /// <summary>
 /// 設定情報
@@ -130,43 +68,39 @@ public class Settings {
     /// <summary>
     /// 変換元ファイルが保存されたフォルダ名
     /// </summary>
-    public string SourceFileFolder { get; }
+    public string SourceFolder { get; }
     /// <summary>
     /// 変換元ファイル名（ワイルドカード可）
     /// </summary>
     public string SourceFileName { get; }
     /// <summary>
-    /// 変換正常終了後のExcelファイルの移動先
+    /// 変換正常終了後のファイルの移動先フォルダ名
     /// </summary>
-    public string SuccessFileForder { get; }
+    public string SuccessFileMoveForder { get; }
     /// <summary>
-    /// 変換異常終了後のExcelファイルの移動先
+    /// 変換異常終了後のファイルの移動先フォルダ名
     /// </summary>
-    public string ErrorFileFolder { get; }
-    /// <summary>
-    /// データ転送元Excelファイルの処理対象シート名
-    /// </summary>
-    public string ExcelSheetName { get; }
+    public string ErrorFileMoveFolder { get; }
     /// <summary>
     /// データ転送元CSVファイルのエンコード
     /// </summary>
-    public string CsvFileEncode { get; }
+    public string Encode { get; }
     /// <summary>
-    /// Excelシートのヘッダ行数
+    /// ヘッダ行数
     /// </summary>
     public int HeaderRowCount { get; }
     /// <summary>
     /// データ転送先の帳票定義ID
     /// </summary>
-    public int DefTopId { get; }
+    public int? DefTopId { get; }
     /// <summary>
     /// データ転送先の帳票定義名
     /// </summary>
-    public string DefName { get; }
+    public string? DefTopName { get; }
     /// <summary>
     /// 生成される帳票名称
     /// </summary>
-    public string RepTopName { get; }
+    public string RepName { get; }
     /// <summary>
     /// ラベル情報
     /// </summary>
@@ -174,11 +108,11 @@ public class Settings {
     /// <summary>
     /// CSV区切り文字
     /// </summary>
-    public string SplitType { get; }
+    public string SeparateChar { get; }
     /// <summary>
-    /// 転送元のExcel列からクラスターに割り当てる情報
+    /// 転送元の列からクラスターに割り当てる情報
     /// </summary>
-    public List<FromTo> FromTo { get; }
+    public List<FromTo> FromTo { get; }= new List<FromTo>();
 
     /// <summary>
     /// コンストラクタ
@@ -186,19 +120,35 @@ public class Settings {
     public Settings(IConfigurationRoot configuration) {
         var irepo = configuration.GetSection("iRepoLink");
 
-        DefName = irepo["DefName"] ?? "";
-        SourceFileFolder = irepo["SourceFileFolder"] ?? ".\\Request";
-        SourceFileName = irepo["SourceFileName"] ?? "*.*";
-        SuccessFileForder = irepo["SccessFileForder"] ?? ".\\Success";
-        ErrorFileFolder = irepo["ErrorFileFolder"] ?? ".\\Error";
-        ExcelSheetName = irepo["ExcelSheetName"] ?? "Sheet1";
-        CsvFileEncode = irepo["CsvFileEncode"] ?? "UTF-8";
-        HeaderRowCount = int.TryParse(irepo["HeaderRowCount"] ?? "0", out var rowCnt) ? rowCnt : 0;
-        DefTopId = int.TryParse(irepo["defTopId"] ?? "", out var topId) ? topId : 0;
-        RepTopName = irepo["repTopName"] ?? "{defTopName}_{datetime}";
-        LabelName = irepo["LabelName"] ?? "";
-        SplitType = irepo["SplitType"] ?? "AUTO";
-        FromTo = irepo.GetSection("FromTo").Get<List<FromTo>>() ?? [];
+        DefTopName = irepo[$"{nameof(DefTopName)}"];
+        SourceFolder = irepo[$"{nameof(SourceFolder)}"] ?? @".\Request";
+        SourceFileName = irepo[$"{nameof(SourceFileName)}"] ?? "*.*";
+        SuccessFileMoveForder = irepo[$"{nameof(SuccessFileMoveForder)}"] ?? @".\Success";
+        ErrorFileMoveFolder = irepo[$"{nameof(ErrorFileMoveFolder)}"] ?? @".\Error";
+        Encode = irepo[$"{nameof(Encode)}"] ?? "UTF-8";
+        HeaderRowCount = int.TryParse(irepo[$"{nameof(HeaderRowCount)}"] ?? "0", out var rowCnt) ? rowCnt : 0;
+        //DefTopId = int.TryParse(irepo[$"{nameof(DefTopId)}"] ?? , out var topId) ? topId : 0;
+        if (irepo[$"{nameof(DefTopId)}"] is null) {
+            DefTopId = null;
+        } else {
+            DefTopId = int.Parse(irepo[$"{nameof(DefTopId)}"] ?? "0");
+        }
+        RepName = irepo[$"{nameof(RepName)}"] ?? "{defTopName}_{datetime}";
+        LabelName = irepo[$"{nameof(LabelName)}"] ?? "";
+        SeparateChar = irepo[$"{nameof(SeparateChar)}"] ?? "AUTO";
+        foreach (var x in irepo.GetSection($"{nameof(FromTo)}").GetChildren() ) {
+            //            x.GetSection("ClusterID")
+            var d = new FromTo();
+            d.ColumnNo = int.Parse(x["ColumnNo"] ?? "-1");
+            d.SheetNo = int.Parse(x["SheetNo"] ?? "-1");
+            d.ClusterID = int.Parse(x["ClusterID"] ?? "-1");
+
+            d.FromDateFormat = x["FromDateFormat"];
+            d.ToDateFormat = x["ToDateFormat"];
+
+            FromTo.Add(d);
+        }
+        //FromTo = irepo.GetSection($"{nameof(FromTo)}").Get<List<FromTo>>() ?? [];
 
     }
 }

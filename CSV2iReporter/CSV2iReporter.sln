@@ -3,15 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSV2iRporter", "CSV2iRporter\CSV2iRporter.csproj", "{5E92966C-B614-475D-A02F-87A332B63EDE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelLib", "ExcelLib\ExcelLib.csproj", "{7099E1FA-7E97-4595-9AC4-3BF4117844F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSV2iReporter", "CSV2iRporter\CSV2iReporter.csproj", "{5E92966C-B614-475D-A02F-87A332B63EDE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoReportLib", "AutoReportLib\AutoReportLib.csproj", "{BE55060B-650C-4FC6-9B66-DDB67A86F763}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConMasIReporterLib", "ConMasIReporterLib\ConMasIReporterLib.csproj", "{99A80F46-1AD6-4E97-93E8-5A636EC1450A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbAccessLib", "DbAccessLib\DbAccessLib.csproj", "{0570828F-952F-4101-8FDB-8E6F5B4BF320}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2B57BE86-8E0B-4BE8-B2CA-E8D770446E7C}"
 EndProject
@@ -25,10 +21,6 @@ Global
 		{5E92966C-B614-475D-A02F-87A332B63EDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E92966C-B614-475D-A02F-87A332B63EDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E92966C-B614-475D-A02F-87A332B63EDE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7099E1FA-7E97-4595-9AC4-3BF4117844F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7099E1FA-7E97-4595-9AC4-3BF4117844F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7099E1FA-7E97-4595-9AC4-3BF4117844F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7099E1FA-7E97-4595-9AC4-3BF4117844F9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BE55060B-650C-4FC6-9B66-DDB67A86F763}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BE55060B-650C-4FC6-9B66-DDB67A86F763}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE55060B-650C-4FC6-9B66-DDB67A86F763}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -37,15 +29,12 @@ Global
 		{99A80F46-1AD6-4E97-93E8-5A636EC1450A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99A80F46-1AD6-4E97-93E8-5A636EC1450A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99A80F46-1AD6-4E97-93E8-5A636EC1450A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0570828F-952F-4101-8FDB-8E6F5B4BF320}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0570828F-952F-4101-8FDB-8E6F5B4BF320}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0570828F-952F-4101-8FDB-8E6F5B4BF320}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0570828F-952F-4101-8FDB-8E6F5B4BF320}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {805B925E-6685-49DE-8210-54FF31606AB8}
 		        SolutionGuid = {67F64AD2-B982-40A6-831A-1C771B78078B}
 	EndGlobalSection
 EndGlobal

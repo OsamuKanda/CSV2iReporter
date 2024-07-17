@@ -2,8 +2,9 @@
 
 
 // 引数（オプション読み込み）
-var settingFile = ".\\appsettings.json";
-for(var i = 0; i < args.Length; i++) {
+var settingFile = Path.Join(Path.GetDirectoryName(Environment.ProcessPath), Path.GetFileNameWithoutExtension(Environment.ProcessPath) + ".json");
+
+for (var i = 0; i < args.Length; i++) {
     if ((args[i].Equals("-paramfile", StringComparison.CurrentCultureIgnoreCase)) || (args[i].Equals("-pf", StringComparison.CurrentCultureIgnoreCase))) {
         if (i != args.Length - 1) {
             settingFile = args[i + 1];

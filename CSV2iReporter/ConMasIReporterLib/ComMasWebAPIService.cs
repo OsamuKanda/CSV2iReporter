@@ -11,7 +11,7 @@ public class ComMasWebAPIService {
     public bool 帳票の状態を入力完了にする { get; set; } = false;
 
     /// <summary>ConMas Server アドレス</summary>
-    protected readonly string _address;
+    protected readonly string _url;
     /// <summary>ConMas Server ユーザーID</summary>
     protected readonly string _user;
     /// <summary>ConMas Server パスワード</summary>
@@ -31,11 +31,11 @@ public class ComMasWebAPIService {
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    /// <param name="address"></param>
+    /// <param name="url"></param>
     /// <param name="user"></param>
     /// <param name="password"></param>
-    public ComMasWebAPIService(string address, string user, string password, string? proxyServer = null, string? proxyUserName = null, string? proxyPassword = null, string? proxyDomain = null) {
-        _address = address;
+    public ComMasWebAPIService(string url, string user, string password, string? proxyServer = null, string? proxyUserName = null, string? proxyPassword = null, string? proxyDomain = null) {
+        _url = url;
         _user = user;
         _password = password;
         _proxyServer = proxyServer;
@@ -47,19 +47,19 @@ public class ComMasWebAPIService {
 #if ComMasWebAPIへの要求はWebClientを使用する
         new ConMasWebAPIClient();   
 #else
-        new ConMasHttpClient(address, user, password, proxyServer, proxyUserName, proxyPassword, proxyDomain);
+        new ConMasHttpClient(url, user, password, proxyServer, proxyUserName, proxyPassword, proxyDomain);
 #endif
     }
 
     public async Task<bool> LoginAsync() {
         // ログインする
-        var result = await _client.LoginAsync(_address, _user, _password);
+        var result = await _client.LoginAsync(_url, _user, _password);
         Log.Information($"ConMasWebAPI Login {(result ? "成功" : "失敗")}");
         return result;
     }
     public async Task LogoutAsync() {
         // ログアウトする
-        var resultLogout = await _client.LogoutAsync(_address);
+        var resultLogout = await _client.LogoutAsync(_url);
         Log.Information($"ConMasWebAPI Logout {(resultLogout ? "成功" : "失敗")}");
     }
 
@@ -76,7 +76,7 @@ public class ComMasWebAPIService {
 
         // 帳票更新要求を行う
         var resultUpdateReport = new ConMasWebAPIResult(await _client.UpdateReportAsync(
-            _address,
+            _url,
             "csv",
             Encoding.UTF8,
             false,
@@ -155,7 +155,7 @@ public class ComMasWebAPIService {
         }
 
         // 自動帳票作成要求を行う
-        var resultAutoGenerate = new ConMasWebAPIResult(await _client.AutoGenerateAsync(_address
+        var resultAutoGenerate = new ConMasWebAPIResult(await _client.AutoGenerateAsync(_url
             , type
             , System.Text.Encoding.UTF8
             , 1//1"を指定する事で、アップロードファイル中の"作成ユーザー"のユーザーが帳票登録者として登録される。
@@ -190,7 +190,7 @@ public class ComMasWebAPIService {
         }
 
         // 自動帳票作成要求を行う
-        var resultAutoGenerate = new ConMasWebAPIResult(await _client.AutoGenerateAsync(_address
+        var resultAutoGenerate = new ConMasWebAPIResult(await _client.AutoGenerateAsync(_url
             , "csvSimple"
             , Encoding.UTF8
             , 1//1"を指定する事で、アップロードファイル中の"作成ユーザー"のユーザーが帳票登録者として登録される。
@@ -227,7 +227,7 @@ public class ComMasWebAPIService {
 
         // 自動帳票作成要求を行う
         var resultGetReportFile = await _client.GetReportFileAsync(
-            _address
+            _url
             , fileType
             , 帳票ID
             );
@@ -272,7 +272,7 @@ public class ComMasWebAPIService {
 
         // 帳票更新要求を行う
         var resultUpdateReport = new ConMasWebAPIResult(await _client.UpdateReportAsync(
-            _address
+            _url
             , "xml"
             , "65001"
             , true
@@ -308,7 +308,7 @@ public class ComMasWebAPIService {
         }
 
         // 自動帳票作成要求を行う
-        var resultGetReportFile = await _client.GetDefinitionListAsync(_address, reportName);
+        var resultGetReportFile = await _client.GetDefinitionListAsync(_url, reportName);
 
         await LogoutAsync();
 
@@ -327,7 +327,7 @@ public class ComMasWebAPIService {
 
         // 自動帳票作成要求を行う
         var resultGetReportFile = await _client.GetDefinitionDetailAsync(
-            _address,
+            _url,
             $"{topId}"
             );
 

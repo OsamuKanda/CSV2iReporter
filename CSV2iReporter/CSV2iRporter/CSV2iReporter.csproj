@@ -13,11 +13,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AutoReportLib\AutoReportLib.csproj" />
-    <ProjectReference Include="..\ExcelLib\ExcelLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.json">
+    <None Update="CSV2iReporter.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

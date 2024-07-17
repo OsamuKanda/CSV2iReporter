@@ -15,8 +15,8 @@ namespace ConMasIReporterLib;
 public class WebClientEx : System.Net.WebClient {
     private readonly CookieContainer _cookieContainer = new();
 
-    protected override WebRequest GetWebRequest(Uri address) {
-        var webRequest = base.GetWebRequest(address);
+    protected override WebRequest GetWebRequest(Uri url) {
+        var webRequest = base.GetWebRequest(url);
         if (webRequest is HttpWebRequest request) {
             // コンテナーを設定することで、Cookie の取得や送信をやってもらう。
             request.CookieContainer = _cookieContainer;
@@ -52,11 +52,11 @@ public class ConMasWebClient : IDisposable, IConMasWebAPIClient {
     /// <summary>
     /// ログイン
     /// </summary>
-    /// <param name="address"></param>
+    /// <param name="url"></param>
     /// <param name="userId"></param>
     /// <param name="password"></param>
     /// <returns></returns>
-    public async Task<bool> LoginAsync(string address, string userId, string password) {
+    public async Task<bool> LoginAsync(string url, string userId, string password) {
         await Task.Delay(0);
         var param = new NameValueCollection {
             { "command", "Login" },
@@ -64,7 +64,7 @@ public class ConMasWebClient : IDisposable, IConMasWebAPIClient {
             { "password", password }
         };
 
-        var result = webClient.UploadValues(address, param);
+        var result = webClient.UploadValues(url, param);
         var resultXml = XDocument.Parse(Encoding.UTF8.GetString(result));
         var code = resultXml?.Element("conmas")?.Element("loginResult")?.Element("code")?.Value;
         return code == "0";
@@ -73,15 +73,15 @@ public class ConMasWebClient : IDisposable, IConMasWebAPIClient {
     /// <summary>
     /// ログアウト
     /// </summary>
-    /// <param name="address"></param>
+    /// <param name="url"></param>
     /// <returns></returns>
-    public async Task<bool> LogoutAsync(string address) {
+    public async Task<bool> LogoutAsync(string url) {
         await Task.Delay(0);
         var param = new NameValueCollection {
             { "command", "Logout" }
         };
 
-        var result = webClient.UploadValues(address, param);
+        var result = webClient.UploadValues(url, param);
         var resultXml = XDocument.Parse(Encoding.UTF8.GetString(result));
         var code = resultXml?.Element("conmas")?.Element("loginResult")?.Element("code")?.Value;
         return code == "0";
@@ -90,17 +90,17 @@ public class ConMasWebClient : IDisposable, IConMasWebAPIClient {
     /// <summary>
     /// 自動帳票作成
     /// </summary>
-    /// <param name="address"></param>
+    /// <param name="url"></param>
     /// <param name="type"></param>
     /// <param name="encoding"></param>
     /// <param name="userMode"></param>
     /// <param name="labelMode"></param>
     /// <param name="uploadFilePath"></param>
     /// <returns></returns>
-    public async Task<XDocument> AutoGenerateAsync(string address, string type, Encoding encoding, int userMode, int labelMode, string uploadFilePath, bool calculateEnable = true) {
+    public async Task<XDocument> AutoGenerateAsync(string url, string type, Encoding encoding, int userMode, int labelMode, string uploadFilePath, bool calculateEnable = true) {
         await Task.Delay(0);
         var strEncoding = encoding == Encoding.UTF8 ? "65001" : "932";
-        var urlString = $"{address}?command=AutoGenerate&type={type}&encoding={strEncoding}&userMode={userMode}&labelMode={labelMode}{(calculateEnable ? "&calculateEnable=1" : "")}";
+        var urlString = $"{url}?command=AutoGenerate&type={type}&encoding={strEncoding}&userMode={userMode}&labelMode={labelMode}{(calculateEnable ? "&calculateEnable=1" : "")}";
         var result = webClient.UploadFile(urlString, uploadFilePath);
         return XDocument.Parse(Encoding.UTF8.GetString(result));
     }
@@ -108,60 +108,60 @@ public class ConMasWebClient : IDisposable, IConMasWebAPIClient {
     /// <summary>
     /// 定義一覧取得
     /// </summary>
-    /// <param name="address"></param>
+    /// <param name="url"></param>
     /// <returns></returns>
-    public XElement GetDefinitionList(string address) {
+    public XElement GetDefinitionList(string url) {
         var param = new NameValueCollection {
             { "command", "GetDefinitionList" }
         };
-        var result = webClient.UploadValues(address, param);
+        var result = webClient.UploadValues(url, param);
         return XElement.Parse(Encoding.UTF8.GetString(result));
     }
 
     /// <summary>
     /// 帳票更新
     /// </summary>
-    /// <param name="address"></param>
+    /// <param name="url"></param>
     /// <param name="type"></param>
     /// <param name="encoding"></param>
     /// <param name="uploadFilePath"></param>
     /// <returns></returns>
-    public async Task<XDocument> UpdateReportAsync(string address, string type, string encoding, bool enableUpdateUser, string uploadFilePath) {
+    public async Task<XDocument> UpdateReportAsync(string url, string type, string encoding, bool enableUpdateUser, string uploadFilePath) {
         await Task.Delay(0);
-        var urlString = $"{address}?command=UpdateReport&type={type}&encoding={encoding}";
+        var urlString = $"{url}?command=UpdateReport&type={type}&encoding={encoding}";
         var result = webClient.UploadFile(urlString, uploadFilePath);
         return XDocument.Parse(Encoding.UTF8.GetString(result));
     }
 
-    public Task<XDocument> UpdateReportAsync(string address, string type, Encoding encoding, bool enableUpdateUser, string data, string uploadFilePath) {
+    public Task<XDocument> UpdateReportAsync(string url, string type, Encoding encoding, bool enableUpdateUser, string data, string uploadFilePath) {
         throw new NotImplementedException();
     }
 
-    public Task<(bool, byte[])> GetReportFileAsync(string address, string fileType, int reportId) {
+    public Task<(bool, byte[])> GetReportFileAsync(string url, string fileType, int reportId) {
         throw new NotImplementedException();
     }
 
-    public Task<XDocument> AutoGenerateAsync(string address, string type, Encoding encoding, int userMode, int labelMode, string data, string fileName, bool calculateEnable = true) {
+    public Task<XDocument> AutoGenerateAsync(string url, string type, Encoding encoding, int userMode, int labelMode, string data, string fileName, bool calculateEnable = true) {
         throw new NotImplementedException();
     }
 
-    public Task<XElement> GetDefinitionListAsync(string address, string reportName, int lebelID) {
+    public Task<XElement> GetDefinitionListAsync(string url, string reportName, int lebelID) {
         throw new NotImplementedException();
     }
 
-    public Task<XElement> GetDefinitionListAsync(string address, string reportName) {
+    public Task<XElement> GetDefinitionListAsync(string url, string reportName) {
         throw new NotImplementedException();
     }
 
-    public Task<XElement> GetDefinitionListAsync(string address, int lebelID) {
+    public Task<XElement> GetDefinitionListAsync(string url, int lebelID) {
         throw new NotImplementedException();
     }
 
-    public Task<XElement> GetDefinitionListAsync(string address) {
+    public Task<XElement> GetDefinitionListAsync(string url) {
         throw new NotImplementedException();
     }
 
-    public Task<XElement> GetDefinitionDetailAsync(string address, string topId) {
+    public Task<XElement> GetDefinitionDetailAsync(string url, string topId) {
         throw new NotImplementedException();
     }
 }

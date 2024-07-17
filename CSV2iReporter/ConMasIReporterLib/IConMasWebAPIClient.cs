@@ -8,38 +8,38 @@ public interface IConMasWebAPIClient {
     /// ログイン
     /// command=Login
     /// </summary>
-    /// <param name="address">i-Reporterサーバーアドレス</param>
+    /// <param name="url">i-Reporterサーバーアドレス</param>
     /// <param name="userId"></param>
     /// <param name="password"></param>
     /// <returns></returns>
-    Task<bool> LoginAsync(string address, string userId, string password);
+    Task<bool> LoginAsync(string url, string userId, string password);
 
     /// <summary>
     /// ログアウト
     /// command=Logout
     /// </summary>
-    /// <param name="address">i-Reporterサーバーアドレス</param>
+    /// <param name="url">i-Reporterサーバーアドレス</param>
     /// <returns>正常時はtrue</returns>
-    Task<bool> LogoutAsync(string address);
+    Task<bool> LogoutAsync(string url);
 
     /// <summary>
     /// 自動帳票作成
     /// command=AutoGenerate
     /// </summary>
-    /// <param name="address">i-Reporterサーバーアドレス</param>
+    /// <param name="url">i-Reporterサーバーアドレス</param>
     /// <param name="type"></param>
     /// <param name="encoding"></param>
     /// <param name="userMode"></param>
     /// <param name="labelMode"></param>
     /// <param name="uploadFilePath"></param>
     /// <returns></returns>
-    Task<XDocument> AutoGenerateAsync(string address, string type, Encoding encoding, int userMode, int labelMode, string uploadFilePath, bool calculateEnable = true);
+    Task<XDocument> AutoGenerateAsync(string url, string type, Encoding encoding, int userMode, int labelMode, string uploadFilePath, bool calculateEnable = true);
 
     /// <summary>
     /// 自動帳票作成
     /// command=AutoGenerate
     /// </summary>
-    /// <param name="address">i-Reporterサーバーアドレス</param>
+    /// <param name="url">i-Reporterサーバーアドレス</param>
     /// <param name="type"></param>
     /// <param name="encoding"></param>
     /// <param name="userMode"></param>
@@ -47,13 +47,13 @@ public interface IConMasWebAPIClient {
     /// <param name="data"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    Task<XDocument> AutoGenerateAsync(string address, string type, Encoding encoding, int userMode, int labelMode, string data, string fileName, bool calculateEnable = true);
+    Task<XDocument> AutoGenerateAsync(string url, string type, Encoding encoding, int userMode, int labelMode, string data, string fileName, bool calculateEnable = true);
 
     /// <summary>
     /// 帳票更新
     /// command=UpdateReport
     /// </summary>
-    /// <param name="address">i-Reporterサーバーアドレス</param>
+    /// <param name="url">i-Reporterサーバーアドレス</param>
     /// <param name="type"></param>
     /// <param name="encoding"></param>
     /// <param name="enableUpdateUser">true  : アップロードファイル中の「更新ユーザー」のユーザーが帳票更新者として登録される。
@@ -61,13 +61,13 @@ public interface IConMasWebAPIClient {
     /// </param>  
     /// <param name="uploadFilePath"></param>
     /// <returns></returns>
-    Task<XDocument> UpdateReportAsync(string address, string type, string encoding, bool enableUpdateUser, string uploadFilePath);
+    Task<XDocument> UpdateReportAsync(string url, string type, string encoding, bool enableUpdateUser, string uploadFilePath);
 
     /// <summary>
     /// 帳票更新
     /// command=UpdateReport
     /// </summary>
-    /// <param name="address">i-Reporterサーバーアドレス</param>
+    /// <param name="url">i-Reporterサーバーアドレス</param>
     /// <param name="type"></param>
     /// <param name="encoding"></param>
     /// <param name="enableUpdateUser">true  : アップロードファイル中の「更新ユーザー」のユーザーが帳票更新者として登録される。
@@ -75,30 +75,36 @@ public interface IConMasWebAPIClient {
     /// <param name="data"></param>
     /// <param name="uploadFilePath"></param>
     /// <returns></returns>
-    Task<XDocument> UpdateReportAsync(string address, string type, Encoding encoding, bool enableUpdateUser, string data, string uploadFilePath);
+    Task<XDocument> UpdateReportAsync(string url, string type, Encoding encoding, bool enableUpdateUser, string data, string uploadFilePath);
 
     /// <summary>
     /// 帳票ファイル取得
     /// command=GetReportFile
     /// </summary>
-    /// <param name="address">i-Reporterサーバーアドレス</param>
+    /// <param name="url">i-Reporterサーバーアドレス</param>
     /// <param name="fileType"></param>
     /// <param name="reportId"></param>
     /// <returns></returns>
-    Task<(bool, byte[])> GetReportFileAsync(string address, string fileType, int reportId);
+    Task<(bool, byte[])> GetReportFileAsync(string url, string fileType, int reportId);
 
     /// <summary>
     /// 定義一覧取得
     /// command=GetDefinitionList
     /// </summary>
-    /// <param name="address"></param>
+    /// <param name="url"></param>
     /// <param name="labelID"></param>
     /// <param name="reportName"></param>
     /// <returns></returns>
-    Task<XElement> GetDefinitionListAsync(string address);
-    Task<XElement> GetDefinitionListAsync(string address, string reportName);
-    Task<XElement> GetDefinitionListAsync(string address, int labelID);
-    Task<XElement> GetDefinitionListAsync(string address, string reportName, int labelID);
+    Task<XElement> GetDefinitionListAsync(string url);
+    Task<XElement> GetDefinitionListAsync(string url, string reportName);
+    Task<XElement> GetDefinitionListAsync(string url, int labelID);
+    Task<XElement> GetDefinitionListAsync(string url, string reportName, int labelID);
 
-    Task<XElement> GetDefinitionDetailAsync(string address, string topId);
+    /// <summary>
+    /// 定義簡易詳細情報取得
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="topId"></param>
+    /// <returns></returns>
+    Task<XElement> GetDefinitionDetailAsync(string url, string topId);
 }

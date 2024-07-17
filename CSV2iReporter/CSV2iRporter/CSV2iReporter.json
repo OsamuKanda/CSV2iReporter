@@ -1,0 +1,51 @@
+{
+    "ConMasWeb": {
+        "Url": "https://ircloud-trial1.conmas-i-reporter.com/ConMasAPINF1FB/Rests/APIExecute.aspx",
+        "User": "conmasadmin",
+        "Password": "tc8159",
+        "ProxyServer": "",
+        "ProxyUserName": "",
+        "ProxyPassword": "",
+        "ProxyDomain": ""
+    },
+    "Log": {
+        "OutputPath": ".\\Log\\Log-.txt",
+        "Level": "I"
+    },
+    "iRepoLink": {
+        "DefTopName": "i-Reporter：全インプットサンプルA",
+        "SourceFileFolder": ".\\Request",
+        "SourceFileName": "*.csv",
+        "SuccessFileMoveForder": ".\\Success",
+        "ErrorFileMoveFolder": ".\\Error",
+        "Encode": "UTF-8",
+        "HeaderRowCount": 1,
+        "RepTopName": "{7}_{4}_{1}",
+        "LabelName": "配合/{4}/{7}/{1}",
+        "SeparateChar": ",",
+        "FromTo": [
+            {
+                "ColumnNo": "1",
+                "SheetNo": "3",
+                "ClusterID": "0"
+            },
+            {
+                "ColumnNo": "2",
+                "SheetNo": "3",
+                "ClusterID": "1",
+                "FromDateFormat": "yyMMddHHmmss",
+                "ToDateFormat": "yyMMdd"
+            },
+            {
+                "ColumnNo": "3",
+                "SheetNo": "3",
+                "ClusterID": "2"
+            },
+            {
+                "ColumnNo": "4",
+                "SheetNo": "3",
+                "ClusterID": "3"
+            }
+        ]
+    }
+}

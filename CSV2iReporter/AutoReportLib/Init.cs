@@ -6,12 +6,17 @@ using System.Reflection;
 namespace AutoReportLib;
 public class Init() {
 
-    public static string SettingFileFullPath { get; set; } = $@"{Directory.GetCurrentDirectory()}\appsettings.json";
+    public static string SettingFileFullPath { get; set; } = Path.Join(Path.GetDirectoryName(Environment.ProcessPath), Path.GetFileNameWithoutExtension(Environment.ProcessPath) + @".json");
 
     //設定ファイル読み出し
     public static IConfigurationRoot ReadSettingFile(string settingFileFullPath) {
-        // .\\が指定されている場合はカレントフォルダに変換する
-        SettingFileFullPath = settingFileFullPath.Replace(".\\", Directory.GetCurrentDirectory() + "\\");
+        // ▼2024.07.16 Update TC Kanda (先頭以外に.\\を使った場合におかしな事になる）
+        //// .\\が指定されている場合はカレントフォルダに変換する
+        //SettingFileFullPath = settingFileFullPath.Replace(".\\", Directory.GetCurrentDirectory() + "\\");
+        if(settingFileFullPath.Substring(0,2) == @".\") {
+            SettingFileFullPath = Directory.GetCurrentDirectory() + @"\" + settingFileFullPath.Substring(2);
+        }
+        // ▲2024.07.16 Update TC Kanda (先頭以外に.\\を使った場合におかしな事になる）
 
         //Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
         //if (!File.Exists($@"{SettingFileFullPath}")) {
@@ -26,8 +31,8 @@ public class Init() {
 
     //Serilog初期化
     public static void InitLog(IConfigurationRoot configuration) {
-        var logFolder = configuration.GetSection("Log")["Path"];
-        var logLevel = configuration.GetSection("Log")["LogLevel"] switch {
+        var logFolder = configuration.GetSection("Log")["OutputPath"];
+        var logLevel = configuration.GetSection("Log")["Level"] switch {
             "E" => 1,
             "W" => 2,
             "I" => 3,
@@ -43,7 +48,7 @@ public class Init() {
            .Enrich.WithThreadName().Enrich.WithProperty("ThreadName", "_")
            .Enrich.FromLogContext();
         if (!string.IsNullOrEmpty(logFolder)) {
-            config.WriteTo.File(logFolder, rollingInterval: RollingInterval.Day, outputTemplate: template);
+            config.WriteTo.File( path:logFolder, rollingInterval: RollingInterval.Day, outputTemplate: template);
         }
 
         if (logLevel == 0) config.MinimumLevel.Fatal();

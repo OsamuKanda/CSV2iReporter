@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConMasIReporterLib.Models;
+﻿namespace ConMasIReporterLib.Models;
 
 public static class 編集ステータス {
     public const string 入力前 = "0";
