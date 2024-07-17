@@ -14,25 +14,25 @@ namespace CSV2iReporter;
 /// <remarks>
 /// コンストラクタ
 /// </remarks>
-public class ReportData(int columnNo, int sheetNo, int clusterId, string clusterData) {
-    /// <summary>
-    /// データの列番号（1～）
-    /// </summary>
-    public int columnNo = columnNo;
-    /// <summary>
-    /// シートNo（1～）
-    /// </summary>
-    public int sheetNo = sheetNo;
-    /// <summary>
-    /// クラスターID（0～）
-    /// </summary>
-    public int clusterId = clusterId;
+public class ReportData(FromTo fromTo, string data) {
+    public FromTo fromto = fromTo;
+    ///// <summary>
+    ///// データの列番号（1～）
+    ///// </summary>
+    //public int columnNo = columnNo;
+    ///// <summary>
+    ///// シートNo（1～）
+    ///// </summary>
+    //public int? sheetNo = sheetNo;
+    ///// <summary>
+    ///// クラスターID（0～）
+    ///// </summary>
+    //public int? clusterId = clusterId;
     /// <summary>
     /// クラスターデータ
     /// </summary>
-    public string clusterData = clusterData;
+    public string data = data;
 }
-
 /// <summary>
 /// i-Reporter自動帳票連携ソフト
 /// </summary>
@@ -204,7 +204,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
         //}
 
         // 設定ファイルのクラスターIDが帳票定義にあるかチェック
-        foreach (var setting in _settings.FromTo) {
+        foreach (var fromTo in _settings.FromTo.Where(m => m.ClusterID is not null)) {
             var detailInfo = conmas.Element("detailInfo");
 
             // クラスター
@@ -215,12 +215,12 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             if (cluster != null) {
                 // 定義されたシートNoとクラスターIDが存在するか？
                 bool isFind = false;
-                foreach (var clusterelm in cluster) {
-                    sheetNo = clusterelm?.Element("sheetNo")?.Value;
-                    clusterId = clusterelm?.Element("clusterId")?.Value;
+                foreach (var repCluster in cluster) {
+                    sheetNo = repCluster?.Element("sheetNo")?.Value;
+                    clusterId = repCluster?.Element("clusterId")?.Value;
                     if (int.TryParse(sheetNo, out var sheet)) {
                         if (int.TryParse(clusterId, out var id)) {
-                            if (setting.SheetNo.Equals(sheet) && setting.ClusterID.Equals(id)) {
+                            if (fromTo.SheetNo.Equals(sheet) && fromTo.ClusterID.Equals(id)) {
                                 isFind = true;
                                 break;
                             }
@@ -228,7 +228,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
                     }
                 }
                 if (!isFind) {
-                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の sheetNo'{setting.SheetNo}'、clusterID'{setting.ClusterID}' は 帳票定義'{_defTopId}' にありません");
+                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の sheetNo'{fromTo.SheetNo}'、clusterID'{fromTo.ClusterID}' は 帳票定義'{_defTopId}' にありません");
                     return false;
                 }
             }
@@ -301,17 +301,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
         name = name.Replace("{defTopID}", _defTopId.ToString(), StringComparison.CurrentCultureIgnoreCase);
         // 帳票名
         name = name.Replace("{defTopName}", _defTopName, StringComparison.CurrentCultureIgnoreCase);
-        //// 備考
-        //name = name.Replace("{remarks1}", $"{_remarksValue1}", StringComparison.CurrentCultureIgnoreCase);
-        //name = name.Replace("{remarks2}", $"{_remarksValue2}", StringComparison.CurrentCultureIgnoreCase);
-        //name = name.Replace("{remarks3}", $"{_remarksValue3}", StringComparison.CurrentCultureIgnoreCase);
-        //name = name.Replace("{remarks4}", $"{_remarksValue4}", StringComparison.CurrentCultureIgnoreCase);
-        //name = name.Replace("{remarks5}", $"{_remarksValue5}", StringComparison.CurrentCultureIgnoreCase);
-        //name = name.Replace("{remarks6}", $"{_remarksValue6}", StringComparison.CurrentCultureIgnoreCase);
-        //name = name.Replace("{remarks7}", $"{_remarksValue7}", StringComparison.CurrentCultureIgnoreCase);
-        //name = name.Replace("{remarks8}", $"{_remarksValue8}", StringComparison.CurrentCultureIgnoreCase);
-        //name = name.Replace("{remarks9}", $"{_remarksValue9}", StringComparison.CurrentCultureIgnoreCase);
-        //name = name.Replace("{remarks10}", $"{_remarksValue10}", StringComparison.CurrentCultureIgnoreCase);
+
         return name;
     }
     /// <summary>
@@ -327,40 +317,40 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
         name = name.Replace("{RowNo}", rowNo.ToString(), StringComparison.CurrentCultureIgnoreCase);
         // 列データの変換
         for (var col = 0; col < repData.Count; col++) {
-            name = name.Replace("{" + repData[col].columnNo + "}", repData[col].clusterData, StringComparison.CurrentCultureIgnoreCase);
+            name = name.Replace("{" + repData[col].fromto.ColumnNo + "}", repData[col].data, StringComparison.CurrentCultureIgnoreCase);
         }
         return name;
     }
-    /// <summary>
-    /// 文字列から取得する列番号を取得する
-    /// </summary>
-    /// <param name="columns">列名定義配列</param>
-    /// <param name="columnName">探す列名</param>
-    /// <returns>0～:列番号、null:列指定エラー</returns>
-    private int? GetColumnNo(string columnName) {
-        int colNo;
+    ///// <summary>
+    ///// 文字列から取得する列番号を取得する
+    ///// </summary>
+    ///// <param name="columns">列名定義配列</param>
+    ///// <param name="columnName">探す列名</param>
+    ///// <returns>0～:列番号、null:列指定エラー</returns>
+    //private int? GetColumnNo(string columnName) {
+    //    int colNo;
 
         
-        if(this._columnHeaders is not null) {
-            //列名を示す文字列から探す
-            for (colNo = 0; colNo < this._columnHeaders.Length; colNo++) {
-                // カラム名と設定文字列を比較する
-                if (string.Compare(this._columnHeaders[colNo], columnName, StringComparison.OrdinalIgnoreCase) == 0) {
-                    return colNo;
-                }
-            }
-        }
-        //列名と一致しない場合は、列番号として扱う
-        if( !(int.TryParse(columnName,out colNo)) ) {
-            return null;
-        }
-        return colNo;
-    }
+    //    if(this._columnHeaders is not null) {
+    //        //列名を示す文字列から探す
+    //        for (colNo = 0; colNo < this._columnHeaders.Length; colNo++) {
+    //            // カラム名と設定文字列を比較する
+    //            if (string.Compare(this._columnHeaders[colNo], columnName, StringComparison.OrdinalIgnoreCase) == 0) {
+    //                return colNo;
+    //            }
+    //        }
+    //    }
+    //    //列名と一致しない場合は、列番号として扱う
+    //    if( !(int.TryParse(columnName,out colNo)) ) {
+    //        return null;
+    //    }
+    //    return colNo;
+    //}
     /// <summary>
     /// 生成帳票名の生成
     /// </summary>
     private string GetRepTopName(FileInfo fi, List<ReportData> repData, int rowNo) {
-        var name = ConvertNameFromFile(_settings.RepName, fi);
+        var name = ConvertNameFromFile(_settings.RepTopName, fi);
         name = ConvertNameFromReport(name);
         name = ConvertNameFromData(name,repData,rowNo);
         return name;
@@ -371,7 +361,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
     /// </summary>
     public async Task<bool> Execute() {
         // 監視ディレクトリ検索
-        var files = Directory.GetFiles(_settings.SourceFolder, _settings.SourceFileName);
+        var files = Directory.GetFiles(_settings.SourceFolder, _settings.SourceFileName).OrderBy(f => File.GetLastWriteTime(f));
 
         // 見つかったファイル分の生成処理を行う
         foreach ( var file in files ) {
@@ -407,8 +397,6 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
     private async Task<bool> MakeReport(FileInfo fi) {
         // 元ファイルの全行のデータ
         var reqData = new List<string[]>();
-        // 変換リスト
-        var reportData = new List<ReportData>();
 
         // ファイルの拡張子による変更元データ読込み
         if (fi.Extension.Equals(".csv", StringComparison.CurrentCultureIgnoreCase)) {
@@ -427,39 +415,25 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
         }
 
         // 読み込んだデータから帳票を作成する
-        for (var rowNo = _settings.HeaderRowCount; ; rowNo++) {
+        // 行ループ
+        for (var rowNo = 0; rowNo < (reqData.Count - _settings.HeaderRowCount); rowNo++) {
 
-            // 送り込むデータ情報をクリア
-            reportData.Clear();
+            // 変換リスト
+            var reportData = new List<ReportData>();
 
-            //クラスタ情報があるかを確認するフラグ
-            bool IsDataExists = false;
+            // クラスタ変換
+            foreach (var fromTo in _settings.FromTo ) {
 
-            foreach (var fromTo in _settings.FromTo.Where(m => m.ClusterID != -1)) {
-
-                // 列番号0～
-                int? colNo;
-
-                // カラム情報
-                string? cellValue;
-
-                // データ取得対象の列番号を取得
-                // colNo = GetColumnNo(fromTo.ColumnNo);
-                colNo = fromTo.ColumnNo;
-
-                // 列番号が取得できなければエラーとする
-                if (colNo is null) {
-                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の列番号'{colNo}'が見つかりません");
-                    return false;
-                }
-                colNo = fromTo.ColumnNo;
+                //列番号取得1～
+                int colNo = fromTo.ColumnNo - 1;
 
                 // カラムデータを取出し
-                cellValue = GetColumnData(reqData, rowNo, (int)colNo);
+                
+                string cellValue = reqData[rowNo + _settings.HeaderRowCount][colNo];
 
                 // カラムデータがない場合はエラー
                 if (cellValue is null) {
-                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の列番号'{colNo}'列のデータがありません");
+                    Log.Error($"ファイル'{fi.FullName}'内の'{rowNo+1}'行目に列番号'{colNo+1}'列のデータが見つかりません");
                     return false;
                 }
 
@@ -474,7 +448,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
                     try {
                         dt = DateTime.ParseExact(cellValue, fromTo.FromDateFormat, null);
                     } catch (Exception ex) {
-                        Log.Error(ex,$"CSVファイルの{colNo}列目の日付文字列'{cellValue}'または 設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の FromDateFormat の指定'{fromTo.FromDateFormat}'が不正です");
+                        Log.Error(ex,$"CSVファイルの{colNo+1}列目の日付文字列'{cellValue}'または 設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の FromDateFormat の指定'{fromTo.FromDateFormat}'が不正です");
                         return false;
                     }
                     //ToDateFormat
@@ -490,31 +464,26 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
                 }
 
 
-                // データが空でない場合データアリフラグをtrueに設定する
                 if (!string.IsNullOrEmpty(cellValue)) {
-                    IsDataExists = true;
-                }
-
-                // データがあれば追加する
-                if (string.IsNullOrEmpty(cellValue)) {
-                    reportData.Add(new ReportData((int)colNo, fromTo.SheetNo, fromTo.ClusterID, cellValue ));
+                    // データがあれば追加する
+                    reportData.Add(new ReportData(fromTo, cellValue));
                 }
             }
 
             // 設定情報が１つも無かった場合、行読出し終了
-            if (!IsDataExists) break;
+            if (reportData.Count==0) break;
 
             // 生成する帳票名を生成する
             //_repTopName = GetRepTopName(fi, reportData, reqData[row], row - _settings.HeaderRowCount);
-            var name = ConvertNameFromFile(_settings.RepName, fi);
+            var name = ConvertNameFromFile(_settings.RepTopName, fi);
             name = ConvertNameFromReport(name);
-            name = ConvertNameFromData(name, reportData, rowNo);
+            name = ConvertNameFromData(name, reportData, rowNo+1);
             _repTopName = name;
 
             // ラベル情報設定
-            var label = ConvertNameFromFile(_settings.LabelName, fi);
+            var label = ConvertNameFromFile(_settings.LabelName??"", fi);
             label = ConvertNameFromReport(label);
-            label = ConvertNameFromData(label, reportData, rowNo);
+            label = ConvertNameFromData(label, reportData, rowNo+1);
 
 
             // 自動帳票作成を要求するCSVデータを作成する
@@ -533,9 +502,21 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             //}
             // addLabels
             sb.addLabels();
-            foreach (ReportData r in reportData) {
-                // SxxCxx
-                sb.Addクラスター(r.sheetNo, r.clusterId);
+
+            // クラスタ変換
+            foreach (var r in reportData.Where(m => m.fromto.ClusterID is not null)) {
+                // SxxCxxを作成
+                sb.Addクラスター(r.fromto.SheetNo??0, r.fromto.ClusterID??0);
+            }
+            // 備考変換
+            foreach (var r in reportData.Where(m => m.fromto.RemarksNo is not null)) {
+                // 備考を作成
+                sb.Add備考(r.fromto.RemarksNo??0);
+            }
+            // システムキー変換
+            foreach (var r in reportData.Where(m => m.fromto.SystemKeyNo is not null)) {
+                // システムキーを作成
+                sb.AddSystemKey(r.fromto.SystemKeyNo??0);
             }
             sb.End();
 
@@ -556,9 +537,19 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             // addLabels
             sb.AddValue(label);
                 ;
-            foreach (var dat in reportData) {
+            foreach (var r in reportData.Where(m => m.fromto.ClusterID is not null)) {
                 // SxxCxx
-                sb.AddValue(dat.clusterData);
+                sb.AddValue(r.data);
+            }
+            // 備考変換
+            foreach (var r in reportData.Where(m => m.fromto.RemarksNo is not null)) {
+                // 備考を作成
+                sb.AddValue(r.data);
+            }
+            // システムキー変換
+            foreach (var r in reportData.Where(m => m.fromto.SystemKeyNo is not null)) {
+                // システムキーを作成
+                sb.AddValue(r.data);
             }
             sb.End();
 
@@ -686,6 +677,10 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
 
             // 桁単位に分割
             foreach (var line in lines) {
+                // 改行のみになったら取り込みをやめる
+                if (line.Length == 0){
+                    break;
+                }
                 requestData.Add($"{line}".Split(separateChar));
             }
         } catch (Exception ex) {
@@ -701,12 +696,12 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
     /// </summary>
     private static string? GetColumnData(List<string[]> dat, int row, int col) {
         // 行、桁位置の最低値チェック
-        if ((row >= 0) && (col >= 0)) {
+        if ((row >= 0) && (col >= 1)) {
             // データに指定行があるか？
             if (dat.Count > row) {
                 // データに指定桁があるか？
-                if (dat[row].Length > col) {
-                    return dat[row][col];
+                if (dat[row].Length >= col) {
+                    return dat[row][col-1];
                 }
             }
         }

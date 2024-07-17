@@ -1,5 +1,6 @@
 ﻿//using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 using System.Text.Json.Serialization;
 
 namespace CSV2iReporter; 
@@ -22,18 +23,20 @@ public class FromTo {
     /// <param name="clusterID"></param>
     /// <param name="fromDateFormat"></param>
     /// <param name="toDateFormat"></param>
-    public FromTo(int columnNo, int sheetNo, int clusterID, string? fromDateFormat, string? toDateFormat) {
+    public FromTo(int columnNo, int? sheetNo, int? clusterID, int? remarksNo, int? systemKeyNo, string? fromDateFormat, string? toDateFormat) {
         ColumnNo = columnNo;
         SheetNo = sheetNo;
         ClusterID = clusterID;
+        RemarksNo = remarksNo;
+        SystemKeyNo = systemKeyNo;
         FromDateFormat = fromDateFormat;
         ToDateFormat = toDateFormat;
     }
     //FromDateFormatとToDateFormatを指定しないコンストラクタ
-    public FromTo(int columnNo, int sheetNo, int clusterID) : this(columnNo, sheetNo, clusterID, null, null) { }
+    public FromTo(int columnNo, int? sheetNo, int? clusterID) : this(columnNo, sheetNo, clusterID, null, null, null, null) { }
 
     //ToDateFormatを指定しないコンストラクタ
-    public FromTo(int columnNo, int sheetNo, int clusterID, string fromDateFormat) : this(columnNo, sheetNo, clusterID, fromDateFormat, null) { }
+    public FromTo(int columnNo, int? sheetNo, int? clusterID, string fromDateFormat) : this(columnNo, sheetNo, clusterID, null, null, fromDateFormat, null) { }
 
     /// <summary>
     /// 変換元ファイルのカラム名または番号（列名または1～の名称）
@@ -43,12 +46,22 @@ public class FromTo {
     /// <summary>
     /// 変換先帳票のシートNo
     /// </summary>
-    public int SheetNo { get; set; }
+    public int? SheetNo { get; set; }
 
     /// <summary>
     /// 変換先帳票のクラスターNo
     /// </summary>
-    public int ClusterID { get; set; }
+    public int? ClusterID { get; set; }
+
+    /// <summary>
+    /// 帳票備考番号
+    /// </summary>
+    public int? RemarksNo { get; set; }
+
+    /// <summary>
+    /// システムキー番号
+    /// </summary>
+    public int? SystemKeyNo { get; set; }
 
     /// <summary>
     /// 日付型の場合の入力フォーマット
@@ -59,6 +72,7 @@ public class FromTo {
     /// 日付型の場合の入力フォーマット
     /// </summary>
     public string? ToDateFormat { get; set; }
+
 }
 
 /// <summary>
@@ -100,11 +114,11 @@ public class Settings {
     /// <summary>
     /// 生成される帳票名称
     /// </summary>
-    public string RepName { get; }
+    public string RepTopName { get; }
     /// <summary>
     /// ラベル情報
     /// </summary>
-    public string LabelName { get; }
+    public string? LabelName { get; }
     /// <summary>
     /// CSV区切り文字
     /// </summary>
@@ -133,19 +147,46 @@ public class Settings {
         } else {
             DefTopId = int.Parse(irepo[$"{nameof(DefTopId)}"] ?? "0");
         }
-        RepName = irepo[$"{nameof(RepName)}"] ?? "{defTopName}_{datetime}";
-        LabelName = irepo[$"{nameof(LabelName)}"] ?? "";
+        RepTopName = irepo[$"{nameof(RepTopName)}"] ?? "{defTopName}_{datetime}";
+        LabelName = irepo[$"{nameof(LabelName)}"];
         SeparateChar = irepo[$"{nameof(SeparateChar)}"] ?? "AUTO";
         foreach (var x in irepo.GetSection($"{nameof(FromTo)}").GetChildren() ) {
             //            x.GetSection("ClusterID")
             var d = new FromTo();
+            // 列番号（必須）
             d.ColumnNo = int.Parse(x["ColumnNo"] ?? "-1");
-            d.SheetNo = int.Parse(x["SheetNo"] ?? "-1");
-            d.ClusterID = int.Parse(x["ClusterID"] ?? "-1");
+            // シート番号
+            if (x["SheetNo"] is null) {
+                d.SheetNo = null;
+            } else {
+                d.SheetNo = int.Parse(x["SheetNo"]??"0");
 
+            }
+            // クラスターID
+            if (x["ClusterID"] is null) {
+                d.ClusterID = null;
+            } else {
+                d.ClusterID = int.Parse(x["ClusterID"]??"0");
+            }
+            // 備考番号（１～１０）
+            if (x["RemarksNo"] is null) {
+                d.RemarksNo = null;
+            } else {
+                d.RemarksNo = int.Parse(x["RemarksNo"] ?? "0");
+            }
+            // システムキー（１～４）
+            if (x["SystemKeyNo"] is null) {
+                d.SystemKeyNo = null;
+            } else {
+                d.SystemKeyNo = int.Parse(x["SystemKeyNo"] ?? "0");
+            }
+            // 変換元日付フォーマット
             d.FromDateFormat = x["FromDateFormat"];
-            d.ToDateFormat = x["ToDateFormat"];
-
+            // 変換先日付フォーマット
+            if( d.FromDateFormat is not null ) {
+                d.ToDateFormat = x["ToDateFormat"]?? "yyyy/MM/dd HH:mm:ss";
+            }
+            // リストに追加
             FromTo.Add(d);
         }
         //FromTo = irepo.GetSection($"{nameof(FromTo)}").Get<List<FromTo>>() ?? [];

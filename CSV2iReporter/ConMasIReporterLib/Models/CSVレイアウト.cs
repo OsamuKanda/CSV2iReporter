@@ -8,7 +8,7 @@ namespace ConMasIReporterLib.Models;
 public static class CSVレイアウト {
     public static StringBuilder BeginH() =>
         new StringBuilder()
-            .Append($"H,\"defTopId\"");
+            .Append($"\"H\",\"defTopId\"");
 
     public static StringBuilder AddTopName(this StringBuilder sb) =>
         sb.Append($",\"repTopName\"");
@@ -32,6 +32,12 @@ public static class CSVレイアウト {
         return sb;
     }
 
+    public static StringBuilder Add備考(this StringBuilder sb, int remarksNo) =>
+        sb.Append($",\"remarksValue{remarksNo}\"");
+
+    public static StringBuilder AddSystemKey(this StringBuilder sb, int systemKeyNo) =>
+        sb.Append($",\"systemKey{systemKeyNo}\"");
+
     public static StringBuilder Addクラスター(this StringBuilder sb, IEnumerable<int> clusterNos) =>
         sb.Addクラスター(1, clusterNos);
 
@@ -39,7 +45,7 @@ public static class CSVレイアウト {
         sb.AppendLine();
 
     public static StringBuilder BeginR(this StringBuilder sb, int defTopId) =>
-        sb.Append($"R,\"{defTopId}\"");
+        sb.Append($"\"R\",\"{defTopId}\"");
 
     public static StringBuilder AddValue(this StringBuilder sb, object value) =>
         sb.Append($",\"{value}\"");
