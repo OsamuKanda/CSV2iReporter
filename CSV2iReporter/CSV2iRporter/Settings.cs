@@ -2,6 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.Text.Json.Serialization;
+using System.Text;
+using System.Runtime;
+
 
 namespace CSV2iReporter; 
 /// <summary>
@@ -98,7 +101,7 @@ public class Settings {
     /// <summary>
     /// データ転送元CSVファイルのエンコード
     /// </summary>
-    public string Encode { get; }
+    public Encoding Encode { get; }
     /// <summary>
     /// ヘッダ行数
     /// </summary>
@@ -132,64 +135,82 @@ public class Settings {
     /// コンストラクタ
     /// </summary>
     public Settings(IConfigurationRoot configuration) {
-        var irepo = configuration.GetSection("iRepoLink");
+        var irepo = configuration.GetSection("Convert");
 
+        // 帳票定義ID
+        DefTopId = int.TryParse(irepo[$"{nameof(DefTopId)}"], out var defTopId) ? defTopId : null;
+        // 帳票定義名
         DefTopName = irepo[$"{nameof(DefTopName)}"];
+        // 読込ファイル保存フォルダ
         SourceFolder = irepo[$"{nameof(SourceFolder)}"] ?? @".\Request";
-        SourceFileName = irepo[$"{nameof(SourceFileName)}"] ?? "*.*";
+        // 保存ファイル名
+        SourceFileName = irepo[$"{nameof(SourceFileName)}"] ?? "*.csv";
+        // 処理成功ファイル保存フォルダ
         SuccessFileMoveForder = irepo[$"{nameof(SuccessFileMoveForder)}"] ?? @".\Success";
+        // 処理エラーファイル保存フォルダ
         ErrorFileMoveFolder = irepo[$"{nameof(ErrorFileMoveFolder)}"] ?? @".\Error";
-        Encode = irepo[$"{nameof(Encode)}"] ?? "UTF-8";
-        HeaderRowCount = int.TryParse(irepo[$"{nameof(HeaderRowCount)}"] ?? "0", out var rowCnt) ? rowCnt : 0;
-        //DefTopId = int.TryParse(irepo[$"{nameof(DefTopId)}"] ?? , out var topId) ? topId : 0;
-        if (irepo[$"{nameof(DefTopId)}"] is null) {
-            DefTopId = null;
-        } else {
-            DefTopId = int.Parse(irepo[$"{nameof(DefTopId)}"] ?? "0");
+        // 文字エンコード
+        switch (irepo[$"{nameof(Encode)}"]??"utf-8".ToLower()) {
+            case "sjis":
+            case "shift-jis":
+            case "shift_jis":
+                Encode = Encoding.GetEncoding("shift-jis");
+                break;
+            case "utf8":
+            case "utf-8":
+            case "utf_8":
+                Encode = Encoding.UTF8;
+                break;
+            case "unicode":
+            case "utf-16":
+            case "utf_16":
+                Encode = Encoding.Unicode;
+                break;
+            case "euc-jp":
+            case "euc_jp":
+                Encode = Encoding.GetEncoding("euc-jp");
+                break;
+            case "iso-2022-jp":
+            case "iso_2022_jp":
+            case "jis":
+                Encode = Encoding.GetEncoding("iso-2022-jp");
+                break;
+            default:
+                Encode = Encoding.UTF8;
+                break;
         }
+        // CSVファイル内のヘッダ行数
+        HeaderRowCount = int.TryParse(irepo[$"{nameof(HeaderRowCount)}"], out var rowCnt) ? rowCnt : 0;
+        // 生成されるレポート名
         RepTopName = irepo[$"{nameof(RepTopName)}"] ?? "{defTopName}_{datetime}";
+        // 生成されるラベル名
         LabelName = irepo[$"{nameof(LabelName)}"];
+        // CSV区切り文字
         SeparateChar = irepo[$"{nameof(SeparateChar)}"] ?? "AUTO";
-        foreach (var x in irepo.GetSection($"{nameof(FromTo)}").GetChildren() ) {
-            //            x.GetSection("ClusterID")
-            var d = new FromTo();
-            // 列番号（必須）
-            d.ColumnNo = int.Parse(x["ColumnNo"] ?? "-1");
-            // シート番号
-            if (x["SheetNo"] is null) {
-                d.SheetNo = null;
-            } else {
-                d.SheetNo = int.Parse(x["SheetNo"]??"0");
 
-            }
+        // 変換セクション
+        foreach (var x in irepo.GetSection($"{nameof(FromTo)}").GetChildren() ) {
+            var d = new FromTo();
+
+            // 列番号（必須）
+            d.ColumnNo = int.TryParse(x["ColumnNo"], out var columnNo) ? columnNo : -1;
+            // シート番号
+            d.SheetNo = int.TryParse(x["SheetNo"], out var sheetNo) ? sheetNo : null;
             // クラスターID
-            if (x["ClusterID"] is null) {
-                d.ClusterID = null;
-            } else {
-                d.ClusterID = int.Parse(x["ClusterID"]??"0");
-            }
+            d.ClusterID = int.TryParse(x["ClusterID"], out var clusterID) ? clusterID : null;
             // 備考番号（１～１０）
-            if (x["RemarksNo"] is null) {
-                d.RemarksNo = null;
-            } else {
-                d.RemarksNo = int.Parse(x["RemarksNo"] ?? "0");
-            }
+            d.RemarksNo = int.TryParse(x["RemarksNo"], out var remarksNo) ? remarksNo : null;
             // システムキー（１～４）
-            if (x["SystemKeyNo"] is null) {
-                d.SystemKeyNo = null;
-            } else {
-                d.SystemKeyNo = int.Parse(x["SystemKeyNo"] ?? "0");
-            }
+            d.SystemKeyNo = int.TryParse(x["SystemKeyNo"], out var systemKeyNo) ? systemKeyNo : null;
             // 変換元日付フォーマット
             d.FromDateFormat = x["FromDateFormat"];
             // 変換先日付フォーマット
             if( d.FromDateFormat is not null ) {
-                d.ToDateFormat = x["ToDateFormat"]?? "yyyy/MM/dd HH:mm:ss";
+                d.ToDateFormat = x["ToDateFormat"];
             }
+
             // リストに追加
             FromTo.Add(d);
         }
-        //FromTo = irepo.GetSection($"{nameof(FromTo)}").Get<List<FromTo>>() ?? [];
-
     }
 }

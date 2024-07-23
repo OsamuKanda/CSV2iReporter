@@ -2,10 +2,15 @@
 
 
 // 引数（オプション読み込み）
-var settingFile = Path.Join(Path.GetDirectoryName(Environment.ProcessPath), Path.GetFileNameWithoutExtension(Environment.ProcessPath) + ".json");
+// EXEと同じフォルダ
+var directoryName = Path.GetDirectoryName(Environment.ProcessPath);
+// EXEと同じファイル名（拡張子無し）
+var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(Environment.ProcessPath);
+// 設定ファイルの指定
+var settingFile = Path.Join(directoryName, fileNameWithoutExtension + ".json");
 
 for (var i = 0; i < args.Length; i++) {
-    if ((args[i].Equals("-paramfile", StringComparison.CurrentCultureIgnoreCase)) || (args[i].Equals("-pf", StringComparison.CurrentCultureIgnoreCase))) {
+    if ((args[i].Equals("-parameterfile", StringComparison.CurrentCultureIgnoreCase)) || (args[i].Equals("-pf", StringComparison.CurrentCultureIgnoreCase))) {
         if (i != args.Length - 1) {
             settingFile = args[i + 1];
         }

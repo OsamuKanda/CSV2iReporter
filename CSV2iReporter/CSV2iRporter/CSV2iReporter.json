@@ -12,47 +12,47 @@
         "OutputPath": ".\\Log\\Log-.txt",
         "Level": "I"
     },
-    "iRepoLink": {
+    "Convert": {
         "DefTopName": "依頼伝票",
         "SourceFileFolder": ".\\Request",
         "SourceFileName": "*.csv",
         "SuccessFileMoveForder": ".\\Success",
         "ErrorFileMoveFolder": ".\\Error",
         "Encode": "UTF-8",
-        "HeaderRowCount": 1,
+        //"HeaderRowCount": 1,
         "RepTopName": "{defTopName}_{rowNo}_{datetime}",
         "LabelName": "[icon=1]配合/{1};{2}/{3}",
         "SeparateChar": ",",
         "FromTo": [
             {
-                "ColumnNo": "1",
-                "SheetNo": "1",
-                "ClusterID": "0"
+                "ColumnNo": 1,
+                "SheetNo": 1,
+                "ClusterID": 0
             },
             {
-                "ColumnNo": "2",
-                "SheetNo": "1",
-                "ClusterID": "1",
+                "ColumnNo": 2,
+                "SheetNo": 1,
+                "ClusterID": 1,
                 "FromDateFormat": "yyMMddHHmmss",
                 "ToDateFormat": "yy/MM/dd HH:mm:ss"
             },
             {
-                "ColumnNo": "3",
-                "ClusterID": "2",
-                "SheetNo": "1"
+                "ColumnNo": 3,
+                "ClusterID": 2,
+                "SheetNo": 1
             },
             {
-                "ColumnNo": "4",
-                "SheetNo": "1",
-                "ClusterID": "3"
+                "ColumnNo": 4,
+                "SheetNo": 1,
+                "ClusterID": 3
             },
             {
-                "ColumnNo": "5",
-                "RemarksNo": "1"
+                "ColumnNo": 5,
+                "RemarksNo": 1
             },
             {
-                "ColumnNo": "6",
-                "SystemKeyNo": "1"
+                "ColumnNo": 6,
+                "SystemKeyNo": 1
             }
 
         ]

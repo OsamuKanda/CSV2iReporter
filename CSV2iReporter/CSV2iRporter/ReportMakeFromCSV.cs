@@ -16,18 +16,6 @@ namespace CSV2iReporter;
 /// </remarks>
 public class ReportData(FromTo fromTo, string data) {
     public FromTo fromto = fromTo;
-    ///// <summary>
-    ///// データの列番号（1～）
-    ///// </summary>
-    //public int columnNo = columnNo;
-    ///// <summary>
-    ///// シートNo（1～）
-    ///// </summary>
-    //public int? sheetNo = sheetNo;
-    ///// <summary>
-    ///// クラスターID（0～）
-    ///// </summary>
-    //public int? clusterId = clusterId;
     /// <summary>
     /// クラスターデータ
     /// </summary>
@@ -55,31 +43,6 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
     /// 生成する帳票名
     /// </summary>
     private string? _repTopName;
-    ///// <summary>備考情報1</summary>
-    //private string _remarksValue1 = "";
-    ///// <summary>備考情報2</summary>
-    //private string _remarksValue2 = "";
-    ///// <summary>備考情報3</summary>
-    //private string _remarksValue3 = "";
-    ///// <summary>備考情報4</summary>
-    //private string _remarksValue4 = "";
-    ///// <summary>備考情報5</summary>
-    //private string _remarksValue5 = "";
-    ///// <summary>備考情報6</summary>
-    //private string _remarksValue6 = "";
-    ///// <summary>備考情報7</summary>
-    //private string _remarksValue7 = "";
-    ///// <summary>備考情報8</summary>
-    //private string _remarksValue8 = "";
-    ///// <summary>備考情報9</summary>
-    //private string _remarksValue9 = "";
-    ///// <summary>備考情報10</summary>
-    //private string _remarksValue10 = "";
-    ///// <summary>
-    ///// クラスターIDリスト
-    ///// </summary>
-    //private readonly List<int> _clusterId = [];
-    /// <summary>
     /// 列名称ヘッダ配列
     /// </summary>
     private string[]? _columnHeaders = null;
@@ -99,25 +62,38 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'に DefTopId または DefTopName の設定がありません");
             return false;
         }
+        // ヘッダー行数
         if (_settings.HeaderRowCount < 0) {
-            Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の HeaderRowCount の値が不正です。 値は 0～ を設定して下さい");
+            Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の HeaderRowCount の値が不正です。 0以上の値を設定して下さい");
             return false;
         }
+        // FromTo設定
         if (_settings.FromTo.Count == 0) {
-            Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'に FromTo の設定がありません");
+            Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'に FromTo の記述が必須です");
             return false;
         } else {
             foreach(var ft in _settings.FromTo) {
-                //if (ft.Column == "") {
-                //    Log.Error($"設定ファイル({AutoReportLib.Init.SettingFileFullPath})の Column の値が不正です。 値は 1～ を設定して下さい");
-                //    return false;
-                //}
-                if (ft.SheetNo == 0) {
-                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の SheetNo の値が不正です。 値は 1～ を設定して下さい");
+                // 列番号
+                if (ft.ColumnNo == -1) {
+                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の FromTo には ColumnNo の記述が必須です");
                     return false;
                 }
-                if (ft.ClusterID == -1) {
-                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の clusterID の値が不正です。 値は 0～ を設定して下さい");
+                // 転送先
+                if ((ft.SheetNo is null) && (ft.ClusterID is not null)) {
+                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の FromTo で ClusterID を指定した場合は SheetNo の記述が必須です");
+                    return false;
+                } else if ((ft.SheetNo is not null) && (ft.ClusterID is null)) {
+                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の FromTo で SheetNo を指定した場合は ClusterID の記述が必須です");
+                    return false;
+                }
+                // シート番号確認
+                if (ft.SheetNo < 1) {
+                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の SheetNo の値が不正です。 SheetNo には1以上の値を設定して下さい");
+                    return false;
+                }
+                // クラスターID
+                if (ft.ClusterID < 0) {
+                    Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の clusterID の値が不正です。 clusterID には0以上の値を設定して下さい");
                     return false;
                 }
             }
@@ -129,25 +105,18 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
 
         if(_defTopId is null) {
 
-            if(_defTopName is null) {
-                Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'に DefTopId または DefTopName の設定がありません");
-                return false;
-            }
-
             // 名称指定の場合、最新の帳票IDを取得する
 
             // 指定の定義情報を読み込む
-            var reports = await _svc.Req定義一覧取得Async(_defTopName);
+            var reports = await _svc.Req定義一覧取得Async(_defTopName??"");
 
-            if (reports != null) {
-                if (!reports.IsEmpty) {
-                    // コレクション更新日の降順に帳票定義を並べ替えて最初の値を取り出す）
-                    _defTopId = (from item in reports.Elements("items").Elements("item") 
-                                let updateDateTime = (DateTime?)item.Element("updateTime") 
-                                let id = (int?)item.Element("itemId") 
-                                orderby updateDateTime descending
-                                select id).First();
-                }
+            if ((reports != null) && (!reports.IsEmpty)) {
+                // コレクション更新日の降順に帳票定義を並べ替えて最初の値を取り出す）
+                _defTopId = (from item in reports.Elements("items").Elements("item") 
+                            let updateDateTime = (DateTime?)item.Element("updateTime") 
+                            let id = (int?)item.Element("itemId") 
+                            orderby updateDateTime descending
+                            select id).First();
             }
             if (_defTopId is null) {
                 Log.Error($"帳票定義名称'{_defTopName}'を含む帳票定義が見つかりません");
@@ -158,42 +127,12 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
 
         // 帳票情報を取得
         var conmas = await _svc.Req定義簡易詳細情報取得Async(_defTopId??0);
-        if (conmas != null) {
-            if (!conmas.IsEmpty) {
-                //var detailInfo = conmas.Element("detailInfo");
-
-                //// 帳票名
-                //_defTopName = detailInfo?.Element("topName")?.Value ?? "";
-                ////// 備考情報
-                ////_remarksValue1 = detailInfo?.Element("remarksValue1")?.Value ?? "";
-                ////_remarksValue2 = detailInfo?.Element("remarksValue2")?.Value ?? "";
-                ////_remarksValue3 = detailInfo?.Element("remarksValue3")?.Value ?? "";
-                ////_remarksValue4 = detailInfo?.Element("remarksValue4")?.Value ?? "";
-                ////_remarksValue5 = detailInfo?.Element("remarksValue5")?.Value ?? "";
-                ////_remarksValue6 = detailInfo?.Element("remarksValue6")?.Value ?? "";
-                ////_remarksValue7 = detailInfo?.Element("remarksValue7")?.Value ?? "";
-                ////_remarksValue8 = detailInfo?.Element("remarksValue8")?.Value ?? "";
-                ////_remarksValue9 = detailInfo?.Element("remarksValue9")?.Value ?? "";
-                ////_remarksValue10 = detailInfo?.Element("remarksValue10")?.Value ?? "";
-                //// クラスター
-                //var clusters = detailInfo?.Element("clusters");
-                //var cluster = clusters?.Elements("cluster");
-                //if (cluster != null) {
-                //    foreach (var clusterelm in cluster) {
-                //        var name = clusterelm?.Element("name")?.Value;
-                //        var sheetNo = clusterelm?.Element("sheetNo")?.Value;
-                //        var clusterId = clusterelm?.Element("clusterId")?.Value;
-                //        if (int.TryParse(clusterId, out var id)) {
-                //            _clusterId.Add(id);
-                //        }
-                //    }
-                //}
-            } else {
-                 Log.Error($"帳票定義'{_defTopId}' が読込できませんでした");
-                return false;
-            }
-        } else {
+        if (conmas is null) {
             Log.Error($"ComMas WebAPI にログインできませんでした");
+            return false;
+        }
+        if (conmas.IsEmpty) {
+            Log.Error($"帳票定義'{_defTopId}' が読込できませんでした");
             return false;
         }
 
@@ -257,52 +196,42 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             }
         }
 
-        //if (!DirMake(_settings.SourceFolder)) {
-        //    return false;
-        //}
-        //if (!DirMake(_settings.SuccessFileMoveForder)) {
-        //    return false;
-        //}
-        //if (!DirMake(_settings.ErrorFileMoveFolder)) {
-        //    return false;
-        //}
-
         return true;
     }
 
     /// <summary>
     /// ファイル情報を元に文字列変換を行う
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="repTopName"></param>
     /// <param name="fi"></param>
     /// <returns></returns>
-    private static string ConvertNameFromFile(string name, FileInfo fi) {
+    private static string ConvertNameFromFile(string repTopName, FileInfo fi) {
         var dt = DateTime.Now;
 
         // 元ファイル名（ベース）
-        name = name.Replace("{fileName}", Path.GetFileNameWithoutExtension(fi.Name), StringComparison.CurrentCultureIgnoreCase);
+        repTopName = repTopName.Replace("{fileName}", Path.GetFileNameWithoutExtension(fi.Name), StringComparison.CurrentCultureIgnoreCase);
         // 依頼ファイルのタイムスタンプ（更新日時）
-        name = name.Replace("{fileDate}", $"{fi.LastWriteTime:yyMMdd}", StringComparison.CurrentCultureIgnoreCase);
-        name = name.Replace("{fileDateTime}", $"{fi.LastWriteTime::yyMMddHHmmss}", StringComparison.CurrentCultureIgnoreCase);
-        name = name.Replace("{fileTime}", $"{fi.LastWriteTime::HHmmss}", StringComparison.CurrentCultureIgnoreCase);
+        repTopName = repTopName.Replace("{fileDate}", $"{fi.LastWriteTime:yyMMdd}", StringComparison.CurrentCultureIgnoreCase);
+        repTopName = repTopName.Replace("{fileDateTime}", $"{fi.LastWriteTime::yyMMddHHmmss}", StringComparison.CurrentCultureIgnoreCase);
+        repTopName = repTopName.Replace("{fileTime}", $"{fi.LastWriteTime::HHmmss}", StringComparison.CurrentCultureIgnoreCase);
         // 処理時の日時
-        name = name.Replace("{date}", $"{dt:yyMMdd}", StringComparison.CurrentCultureIgnoreCase);
-        name = name.Replace("{time}", $"{dt:HHmmss}", StringComparison.CurrentCultureIgnoreCase);
-        name = name.Replace("{dateTime}", $"{dt:yyMMddHHmmss}", StringComparison.CurrentCultureIgnoreCase);
-        return name;
+        repTopName = repTopName.Replace("{date}", $"{dt:yyMMdd}", StringComparison.CurrentCultureIgnoreCase);
+        repTopName = repTopName.Replace("{time}", $"{dt:HHmmss}", StringComparison.CurrentCultureIgnoreCase);
+        repTopName = repTopName.Replace("{dateTime}", $"{dt:yyMMddHHmmss}", StringComparison.CurrentCultureIgnoreCase);
+        return repTopName;
     }
     /// <summary>
     /// 帳票定義を元に文字列変換を行う
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="repTopName"></param>
     /// <returns></returns>
-    private string ConvertNameFromReport(string name) {
+    private string ConvertNameFromReport(string repTopName) {
         // 帳票ID
-        name = name.Replace("{defTopID}", _defTopId.ToString(), StringComparison.CurrentCultureIgnoreCase);
+        repTopName = repTopName.Replace("{defTopID}", _defTopId.ToString(), StringComparison.CurrentCultureIgnoreCase);
         // 帳票名
-        name = name.Replace("{defTopName}", _defTopName, StringComparison.CurrentCultureIgnoreCase);
+        repTopName = repTopName.Replace("{defTopName}", _defTopName, StringComparison.CurrentCultureIgnoreCase);
 
-        return name;
+        return repTopName;
     }
     /// <summary>
     /// データを元に文字列変換を行う
@@ -350,10 +279,10 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
     /// 生成帳票名の生成
     /// </summary>
     private string GetRepTopName(FileInfo fi, List<ReportData> repData, int rowNo) {
-        var name = ConvertNameFromFile(_settings.RepTopName, fi);
-        name = ConvertNameFromReport(name);
-        name = ConvertNameFromData(name,repData,rowNo);
-        return name;
+        var repTopName = ConvertNameFromFile(_settings.RepTopName, fi);
+        repTopName = ConvertNameFromReport(repTopName);
+        repTopName = ConvertNameFromData(repTopName,repData,rowNo);
+        return repTopName;
     }
 
     /// <summary>
@@ -606,39 +535,9 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
         // CSVファイルのエンコード形式設定
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         // システムデフォルトのエンコード形式
-        Encoding encoding = Encoding.Default;
-
-        switch ( _settings.Encode.ToLower() )
-        {
-            case "sjis":
-            case "shift-jis":
-            case "shift_jis":
-                encoding = Encoding.GetEncoding("shift-jis");
-                break;
-            case "utf8":
-            case "utf-8":
-            case "utf_8":
-                encoding = Encoding.UTF8;
-                break;
-            case "unicode":
-            case "utf-16":
-            case "utf_16":
-                encoding = Encoding.Unicode;
-                break;
-            case "euc-jp":
-            case "euc_jp":
-                encoding = Encoding.GetEncoding("euc-jp");
-                break;
-            case "iso-2022-jp":
-            case "iso_2022_jp":
-            case "jis":
-                encoding = Encoding.GetEncoding("iso-2022-jp");
-                break;
-        }
-
         try {
             // 全行読み込み
-            var csv = File.ReadAllText(fi.FullName, encoding);
+            var csv = File.ReadAllText(fi.FullName, _settings.Encode);
 
             // 区切り文字の判別
             switch (_settings.SeparateChar.ToLower()) {
