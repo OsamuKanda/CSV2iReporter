@@ -1,4 +1,5 @@
 ﻿using CSV2iReporter;
+using Serilog;
 
 
 // 引数（オプション読み込み）
@@ -26,13 +27,19 @@ AutoReportLib.Init.InitLog(configuration);
 // i-Reporter自動帳票連携ソフト準備
 var apl = new ReportMakeFromCSV(configuration);
 
+Log.Information($"アプリケーションが起動しました。実行ファイル名'{Path.GetDirectoryName(Environment.ProcessPath)}'");
+Log.Information($"設定ファイル名'{AutoReportLib.Init.SettingFileFullPath}'");
+
 // 設定ファイル、帳票定義ファイルチェック
 var result = await apl.Init();
-
-// 設定ファイル、帳票定義ファイルがOKの場合
-if (result == true) {
-    // 登録元ファイルより帳票生成
-    await apl.Execute();
+try {
+    // 設定ファイル、帳票定義ファイルがOKの場合
+    if (result == true) {
+        // 登録元ファイルより帳票生成
+        await apl.Execute();
+    }
+}catch(Exception ex) {
+    Log.Fatal(ex, $"予期しないエラーが発生しました");
 }
 
 

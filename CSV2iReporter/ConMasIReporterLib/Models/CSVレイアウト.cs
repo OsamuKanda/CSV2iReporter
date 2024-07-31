@@ -16,7 +16,7 @@ public static class CSVレイアウト {
     public static StringBuilder AddTOP備考情報(this StringBuilder sb, int index) =>
         sb.Append($",\"remarksValue{index}\"");
 
-    public static StringBuilder addLabels(this StringBuilder sb) =>
+    public static StringBuilder AddLabels(this StringBuilder sb) =>
         sb.Append($",\"addLabels\"");
 
     public static StringBuilder Addクラスター(this StringBuilder sb, int sheetNo, int clusterNo) =>

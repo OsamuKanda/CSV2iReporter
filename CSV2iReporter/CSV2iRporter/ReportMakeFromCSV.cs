@@ -52,6 +52,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
     /// 初期化
     /// </summary>
     public async Task<bool> Init() {
+
         if (!File.Exists($@"{AutoReportLib.Init.SettingFileFullPath}")) {
             Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'が ありません");
             return false;
@@ -296,11 +297,14 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
         foreach ( var file in files ) {
             var fi = new FileInfo(file);
 
+            Log.Information($"ファイル'{fi.FullName}'処理開始");
+
             // 帳票の生成
             var ret = await MakeReport(fi);
 
             // 成功、失敗にによるファイルの移動
             if (ret == true) {
+                Log.Information($"正常処理ファイル'{fi.FullName}'移動先'{_settings.SuccessFileMoveForder}\\{fi.Name}'");
                 try {
                     File.Move(fi.FullName, $"{_settings.SuccessFileMoveForder}\\{fi.Name}", true);
                 } catch (Exception ex) {
@@ -308,6 +312,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
                     return false;
                 }
             } else {
+                Log.Information($"異常処理ファイル'{fi.FullName}'移動先'{_settings.ErrorFileMoveFolder}\\{fi.Name}'");
                 try {
                     File.Move(fi.FullName, $"{_settings.ErrorFileMoveFolder}\\{fi.Name}", true);
                 } catch (Exception ex) {
@@ -315,6 +320,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
                 }
                 return false;
             }
+            Log.Information($"ファイル'{fi.FullName}'処理終了");
         }
 
         return true;
@@ -430,7 +436,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             //    }
             //}
             // addLabels
-            sb.addLabels();
+            sb.AddLabels();
 
             // クラスタ変換
             foreach (var r in reportData.Where(m => m.fromto.ClusterID is not null)) {
@@ -541,21 +547,22 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
 
             // 区切り文字の判別
             switch (_settings.SeparateChar.ToLower()) {
-                case "tab":
-                case "\t":
-                case "\\t":
+                case "tab"　or "\t" or "\\t":
                     separateChar = '\t';
+                    Log.Debug($"列区切り='タブ文字'");
                     break;
-                case "comma":
-                case ",":
+                case "comma" or ",":
                     separateChar = ',';
+                    Log.Debug($"列区切り=','");
                     break;
                 default:
                     // タブ文字が存在する場合はタブ区切りと判断
                     if (csv.IndexOf('\t') > 0) {
                         separateChar = '\t';
+                        Log.Debug($"列区切り='タブ文字'");
                     } else {
                         separateChar = ',';
+                        Log.Debug($"列区切り=','");
                     }
                     break;
             }
@@ -566,18 +573,24 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             if ( csv.IndexOf("\r\n") > 0 ) {
                 // CRLFで区切られている場合
                 lines = csv.Split("\r\n");
-            }else if (csv.IndexOf('\r') > 0 ) {
+                Log.Debug($"行区切り='<CR><LF>'");
+            } else if (csv.IndexOf('\r') > 0 ) {
                 // CRのみで区切られている場合
                 lines = csv.Split('\r');
+                Log.Debug($"行区切り='<CR>'");
             } else  {
                 // LFのみで区切られている場合
                 lines = csv.Split('\n');
+                Log.Debug($"行区切り='<LF>'");
             }
+
+            Log.Debug($"ファイル行数='{lines.Length}'");
 
             // 桁単位に分割
             foreach (var line in lines) {
                 // 改行のみになったら取り込みをやめる
                 if (line.Length == 0){
+                    Log.Debug($"空行検出により取り込み中止'");
                     break;
                 }
                 requestData.Add($"{line}".Split(separateChar));

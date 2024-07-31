@@ -9,7 +9,7 @@
         "ProxyDomain": ""
     },
     "Log": {
-        "OutputPath": ".\\Log\\Log-.txt",
+        "OutputPath": "C:\\Log-.txt",
         "Level": "I"
     },
     "Convert": {

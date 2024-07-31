@@ -151,28 +151,19 @@ public class Settings {
         ErrorFileMoveFolder = irepo[$"{nameof(ErrorFileMoveFolder)}"] ?? @".\Error";
         // 文字エンコード
         switch (irepo[$"{nameof(Encode)}"]??"utf-8".ToLower()) {
-            case "sjis":
-            case "shift-jis":
-            case "shift_jis":
+            case "sjis" or "shift-jis" or "shift_jis":
                 Encode = Encoding.GetEncoding("shift-jis");
                 break;
-            case "utf8":
-            case "utf-8":
-            case "utf_8":
+            case "utf8" or "utf-8" or "utf_8":
                 Encode = Encoding.UTF8;
                 break;
-            case "unicode":
-            case "utf-16":
-            case "utf_16":
+            case "unicode" or "utf-16" or "utf_16":
                 Encode = Encoding.Unicode;
                 break;
-            case "euc-jp":
-            case "euc_jp":
+            case "euc-jp" or "euc_jp":
                 Encode = Encoding.GetEncoding("euc-jp");
                 break;
-            case "iso-2022-jp":
-            case "iso_2022_jp":
-            case "jis":
+            case "iso-2022-jp" or "iso_2022_jp" or"jis":
                 Encode = Encoding.GetEncoding("iso-2022-jp");
                 break;
             default:
