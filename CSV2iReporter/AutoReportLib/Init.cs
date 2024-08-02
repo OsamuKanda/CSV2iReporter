@@ -33,68 +33,36 @@ public class Init() {
     //Serilog初期化
     public static void InitLog(IConfigurationRoot configuration) {
         var logFolder = configuration.GetSection("Log")["OutputPath"];
-        //var logLevel = configuration.GetSection("Log")["Level"] switch {
-        //    "V" => LogEventLevel.Verbose,
-        //    "D" => LogEventLevel.Debug,
-        //    "I" => LogEventLevel.Information,
-        //    "W" => LogEventLevel.Warning,
-        //    "E" => LogEventLevel.Error,
-        //    "F" => LogEventLevel.Fatal,
-        //    "0" => LogEventLevel.Verbose,
-        //    "1" => LogEventLevel.Debug,
-        //    "2" => LogEventLevel.Information,
-        //    "3" => LogEventLevel.Warning,
-        //    "4" => LogEventLevel.Error,
-        //    "5" => LogEventLevel.Fatal,
-        //    _ => LogEventLevel.Verbose
-        //};
+
         var fileTemplate = "| {Timestamp:HH:mm:ss.fff} | {Level:u4} | {ThreadId:00}:{ThreadName,24} | {Message:j} | {NewLine}{Exception}";
         var consoleTemplate = "| {Timestamp:HH:mm:ss.fff} | {Level:u4} | {ThreadId:00}:{ThreadName,24} | {Message:j} | {NewLine}{Exception}";
-        var config = new LoggerConfiguration();
-        config
+        var logConf = new LoggerConfiguration();
+        logConf
            //.MinimumLevel.Debug()
            .Enrich.WithExceptionDetails()
            .Enrich.WithThreadId()
            .Enrich.WithThreadName().Enrich.WithProperty("ThreadName", "_")
            .Enrich.FromLogContext();
         if (!string.IsNullOrEmpty(logFolder)) {
-            config.WriteTo.File( path:logFolder, rollingInterval: RollingInterval.Day, outputTemplate: fileTemplate);
+            logConf.WriteTo.File( path:logFolder, rollingInterval: RollingInterval.Day, outputTemplate: fileTemplate);
         }
-        // エラーレベルの設定
-        switch (configuration.GetSection("Log")["Level"]??"i".ToLower()) {
-            // 出力無し
-            case "v" or "0":
-                config.MinimumLevel.Verbose();
-                break;
-            // デバッグ以上を出力
-            case "d" or "1":
-                config.MinimumLevel.Debug();
-                break;
-            // 情報以上を出力
-            case "i" or "2":
-                config.MinimumLevel.Information();
-                break;
-            // 警報以上を出力
-            case "w" or "3":
-                config.MinimumLevel.Warning();
-                break;
-            // エラー以上を出力
-            case "e" or "4":
-                config.MinimumLevel.Error();
-                break;
-            // 致命的エラーを出力
-            case "f" or "5":
-                config.MinimumLevel.Fatal();
-                break;
-            // 未指定の場合は情報以上を出力
-            default:
-                config.MinimumLevel.Information();
-                break;
-        }
+        //ログレベルの設定
+        logConf.MinimumLevel.Is(
+            configuration.GetSection("Log")["Level"] switch {
+                "V" or "0" => LogEventLevel.Verbose,
+                "D" or "1" => LogEventLevel.Debug,
+                "I" or "2" => LogEventLevel.Information,
+                "W" or "3" => LogEventLevel.Warning,
+                "E" or "4" => LogEventLevel.Error,
+                "F" or "5" => LogEventLevel.Fatal,
+                _ => LogEventLevel.Verbose
+            }
+        );
+
         // デバッグコンソールと、コンソールに出力
-        config
+        logConf
             .WriteTo.Debug(outputTemplate: consoleTemplate)
             .WriteTo.Console(outputTemplate: consoleTemplate);
-        Log.Logger = config.CreateLogger();
+        Log.Logger = logConf.CreateLogger();
     }
 }

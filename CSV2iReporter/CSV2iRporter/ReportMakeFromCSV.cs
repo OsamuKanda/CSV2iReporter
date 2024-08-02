@@ -6,6 +6,12 @@ using System.Xml.Linq;
 using Serilog;
 using System.Text;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Runtime;
+using CsvHelper;
+using System.Reflection.Metadata;
+using CsvHelper.Configuration;
+using System.Linq;
 
 namespace CSV2iReporter;
 /// <summary>
@@ -43,9 +49,9 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
     /// 生成する帳票名
     /// </summary>
     private string? _repTopName;
-    /// 列名称ヘッダ配列
-    /// </summary>
-    private string[]? _columnHeaders = null;
+    ///// 列名称ヘッダ配列
+    ///// </summary>
+    //private string[]? _columnHeaders = null;
 
 
     /// <summary>
@@ -61,11 +67,6 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
         // 設定ファイルチェック
         if ( (_settings.DefTopId is null) && (_settings.DefTopName is null) ) {
             Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'に DefTopId または DefTopName の設定がありません");
-            return false;
-        }
-        // ヘッダー行数
-        if (_settings.HeaderRowCount < 0) {
-            Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の HeaderRowCount の値が不正です。 0以上の値を設定して下さい");
             return false;
         }
         // FromTo設定
@@ -251,41 +252,6 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
         }
         return name;
     }
-    ///// <summary>
-    ///// 文字列から取得する列番号を取得する
-    ///// </summary>
-    ///// <param name="columns">列名定義配列</param>
-    ///// <param name="columnName">探す列名</param>
-    ///// <returns>0～:列番号、null:列指定エラー</returns>
-    //private int? GetColumnNo(string columnName) {
-    //    int colNo;
-
-        
-    //    if(this._columnHeaders is not null) {
-    //        //列名を示す文字列から探す
-    //        for (colNo = 0; colNo < this._columnHeaders.Length; colNo++) {
-    //            // カラム名と設定文字列を比較する
-    //            if (string.Compare(this._columnHeaders[colNo], columnName, StringComparison.OrdinalIgnoreCase) == 0) {
-    //                return colNo;
-    //            }
-    //        }
-    //    }
-    //    //列名と一致しない場合は、列番号として扱う
-    //    if( !(int.TryParse(columnName,out colNo)) ) {
-    //        return null;
-    //    }
-    //    return colNo;
-    //}
-    /// <summary>
-    /// 生成帳票名の生成
-    /// </summary>
-    private string GetRepTopName(FileInfo fi, List<ReportData> repData, int rowNo) {
-        var repTopName = ConvertNameFromFile(_settings.RepTopName, fi);
-        repTopName = ConvertNameFromReport(repTopName);
-        repTopName = ConvertNameFromData(repTopName,repData,rowNo);
-        return repTopName;
-    }
-
     /// <summary>
     /// 帳票生成実行
     /// </summary>
@@ -344,17 +310,19 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             return false;
         }
 
-        // ヘッダ行を取出し
-        if (_settings.HeaderRowCount > 0) {
-            this._columnHeaders = reqData[_settings.HeaderRowCount - 1];
-        }
+        //// ヘッダ行を取出し
+        //if (_settings.HeaderRowCount > 0) {
+        //    this._columnHeaders = reqData[_settings.HeaderRowCount - 1];
+        //}
 
         // 読み込んだデータから帳票を作成する
         // 行ループ
-        for (var rowNo = 0; rowNo < (reqData.Count - _settings.HeaderRowCount); rowNo++) {
+        for (var rowNo = 0; rowNo < reqData.Count; rowNo++) {
 
             // 変換リスト
             var reportData = new List<ReportData>();
+            //List<ReportData> reportData = new();
+            //List<ReportData> reportData= new List<ReportData>;
 
             // クラスタ変換
             foreach (var fromTo in _settings.FromTo ) {
@@ -364,7 +332,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
 
                 // カラムデータを取出し
                 
-                string cellValue = reqData[rowNo + _settings.HeaderRowCount][colNo];
+                string cellValue = reqData[rowNo][colNo];
 
                 // カラムデータがない場合はエラー
                 if (cellValue is null) {
@@ -373,7 +341,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
                 }
 
                 // 日付変換
-                CultureInfo culture = new CultureInfo("ja-JP");
+                var culture = new CultureInfo("ja-JP");
 
                 // 日付文字列を変換して登録する
                 // FromDateFormat
@@ -501,122 +469,35 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
         return true;
     }
 
-    ///// <summary>
-    ///// ディレクトリ作成
-    ///// </summary>
-    //private static bool DirMake(string path) {
-    //    var dir = path.Replace("\\", "/");
-    //    var net = dir[0..2] == "//" ? "//" : "";
-    //    var dirs = dir.Split('/');
-
-    //    var root = "";
-
-    //    try {
-    //        foreach (var itm in dirs) {
-    //            if (string.IsNullOrEmpty(itm)) continue;
-    //            if ((root != "") || (net == "")) {
-    //                if (!Directory.Exists($"{net}{root}{itm}")) {
-    //                    Directory.CreateDirectory($"{net}{root}{itm}");
-    //                }
-    //            }
-
-    //            root += $"{itm}/";
-    //        }
-    //    } catch (Exception ex) {
-    //        Log.Error(ex, $"転送先フォルダ'{path}' の作成に失敗しました");
-    //        return false;
-
-    //    }
-
-    //    return true;
-    //}
-
     /// <summary>
     /// 変換元ファイル読み込み（CSV）
     /// </summary>
     private List<string[]> GetRequestDataFromCsv(FileInfo fi) {
         var requestData = new List<string[]>();
-        char separateChar;
 
-        // CSVファイルのエンコード形式設定
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        // システムデフォルトのエンコード形式
-        try {
-            // 全行読み込み
-            var csv = File.ReadAllText(fi.FullName, _settings.Encode);
+        // CSVの設定
+        var csvConf = new CsvConfiguration(CultureInfo.InvariantCulture) {
+            Delimiter = _settings.Delimiter.ToLower() switch { "," => ",", "tab" => "\t", _ => "," },
+            HasHeaderRecord = _settings.HasHeaderRecord,
+            Encoding = _settings.Encode
+        };
 
-            // 区切り文字の判別
-            switch (_settings.SeparateChar.ToLower()) {
-                case "tab"　or "\t" or "\\t":
-                    separateChar = '\t';
-                    Log.Debug($"列区切り='タブ文字'");
-                    break;
-                case "comma" or ",":
-                    separateChar = ',';
-                    Log.Debug($"列区切り=','");
-                    break;
-                default:
-                    // タブ文字が存在する場合はタブ区切りと判断
-                    if (csv.IndexOf('\t') > 0) {
-                        separateChar = '\t';
-                        Log.Debug($"列区切り='タブ文字'");
-                    } else {
-                        separateChar = ',';
-                        Log.Debug($"列区切り=','");
-                    }
-                    break;
+        using (var stream = new StreamReader(fi.FullName))
+        using (var reader = new CsvReader(stream, csvConf)) {
+            // ヘッダを読み飛ばす
+            if (csvConf.HasHeaderRecord) {
+                reader.Read();
             }
+            // データを読み込む
+            while (reader.Read()) {
+                var datas = new List<string>();
 
-            string[] lines;
-
-            // 行単位に分割
-            if ( csv.IndexOf("\r\n") > 0 ) {
-                // CRLFで区切られている場合
-                lines = csv.Split("\r\n");
-                Log.Debug($"行区切り='<CR><LF>'");
-            } else if (csv.IndexOf('\r') > 0 ) {
-                // CRのみで区切られている場合
-                lines = csv.Split('\r');
-                Log.Debug($"行区切り='<CR>'");
-            } else  {
-                // LFのみで区切られている場合
-                lines = csv.Split('\n');
-                Log.Debug($"行区切り='<LF>'");
-            }
-
-            Log.Debug($"ファイル行数='{lines.Length}'");
-
-            // 桁単位に分割
-            foreach (var line in lines) {
-                // 改行のみになったら取り込みをやめる
-                if (line.Length == 0){
-                    Log.Debug($"空行検出により取り込み中止'");
-                    break;
+                for (int i = 0; i < reader.ColumnCount; i++) {
+                    datas.Add(reader.GetField(i)??"");
                 }
-                requestData.Add($"{line}".Split(separateChar));
+                requestData.Add(datas.ToArray());
             }
-        } catch (Exception ex) {
-            Log.Error(ex, $"変換元ファイル'{fi.Name}' の読込みに失敗しました。ファイルを開いている可能性があります");
-            return [];
         }
-
         return requestData;
-    }
-
-    /// <summary>
-    /// 読み出した変換元の情報を取出す
-    /// </summary>
-    private static string? GetColumnData(List<string[]> dat, int row, int col) {
-        // 行、桁位置の最低値チェック
-        if ((row >= 0) && (col >= 1)) {
-            // データに指定行があるか？
-            if (dat.Count > row) {
-                // データに指定桁があるか？
-                if (dat[row].Length >= col) {
-                    return dat[row][col-1];
-                }
-            }
-        }
-        return null;
     }
 }

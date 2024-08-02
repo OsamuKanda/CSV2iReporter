@@ -105,7 +105,7 @@ public class Settings {
     /// <summary>
     /// ヘッダ行数
     /// </summary>
-    public int HeaderRowCount { get; }
+    public bool HasHeaderRecord { get; }
     /// <summary>
     /// データ転送先の帳票定義ID
     /// </summary>
@@ -125,7 +125,7 @@ public class Settings {
     /// <summary>
     /// CSV区切り文字
     /// </summary>
-    public string SeparateChar { get; }
+    public string Delimiter { get; }
     /// <summary>
     /// 転送元の列からクラスターに割り当てる情報
     /// </summary>
@@ -150,34 +150,22 @@ public class Settings {
         // 処理エラーファイル保存フォルダ
         ErrorFileMoveFolder = irepo[$"{nameof(ErrorFileMoveFolder)}"] ?? @".\Error";
         // 文字エンコード
-        switch (irepo[$"{nameof(Encode)}"]??"utf-8".ToLower()) {
-            case "sjis" or "shift-jis" or "shift_jis":
-                Encode = Encoding.GetEncoding("shift-jis");
-                break;
-            case "utf8" or "utf-8" or "utf_8":
-                Encode = Encoding.UTF8;
-                break;
-            case "unicode" or "utf-16" or "utf_16":
-                Encode = Encoding.Unicode;
-                break;
-            case "euc-jp" or "euc_jp":
-                Encode = Encoding.GetEncoding("euc-jp");
-                break;
-            case "iso-2022-jp" or "iso_2022_jp" or"jis":
-                Encode = Encoding.GetEncoding("iso-2022-jp");
-                break;
-            default:
-                Encode = Encoding.UTF8;
-                break;
-        }
+        Encode = (irepo[$"{nameof(Encode)}"] ?? "utf-8".ToLower()) switch {
+            "sjis" or "shift-jis" or "shift_jis" => Encoding.GetEncoding("shift-jis"),
+            "utf8" or "utf-8" or "utf_8" => Encoding.UTF8,
+            "unicode" or "utf-16" or "utf_16" => Encoding.Unicode,
+            "euc-jp" or "euc_jp" or "utf_16" => Encoding.GetEncoding("euc-jp"),
+            "iso-2022-jp" or "iso_2022_jp" or "jis" => Encoding.GetEncoding("iso-2022-jp"),
+            _ => Encoding.UTF8
+        };
         // CSVファイル内のヘッダ行数
-        HeaderRowCount = int.TryParse(irepo[$"{nameof(HeaderRowCount)}"], out var rowCnt) ? rowCnt : 0;
+        HasHeaderRecord = bool.TryParse(irepo[$"{nameof(HasHeaderRecord)}"], out var hasRecord) ? hasRecord : false;
         // 生成されるレポート名
         RepTopName = irepo[$"{nameof(RepTopName)}"] ?? "{defTopName}_{datetime}";
         // 生成されるラベル名
         LabelName = irepo[$"{nameof(LabelName)}"];
         // CSV区切り文字
-        SeparateChar = irepo[$"{nameof(SeparateChar)}"] ?? "AUTO";
+        Delimiter = irepo[$"{nameof(Delimiter)}"] ?? ",";
 
         // 変換セクション
         foreach (var x in irepo.GetSection($"{nameof(FromTo)}").GetChildren() ) {

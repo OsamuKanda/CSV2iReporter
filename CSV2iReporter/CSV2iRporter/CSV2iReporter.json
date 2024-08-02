@@ -19,10 +19,10 @@
         "SuccessFileMoveForder": ".\\Success",
         "ErrorFileMoveFolder": ".\\Error",
         "Encode": "UTF-8",
-        //"HeaderRowCount": 1,
+        "HasHeaderRecord": true,
         "RepTopName": "{defTopName}_{rowNo}_{datetime}",
         "LabelName": "[icon=1]配合/{1};{2}/{3}",
-        "SeparateChar": ",",
+        "Delimiter": ",",
         "FromTo": [
             {
                 "ColumnNo": 1,
