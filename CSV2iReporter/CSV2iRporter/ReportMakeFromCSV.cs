@@ -80,6 +80,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
                     Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の FromTo には ColumnNo の記述が必須です");
                     return false;
                 }
+
                 // 転送先
                 if ((ft.SheetNo is null) && (ft.ClusterID is not null)) {
                     Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の FromTo で ClusterID を指定した場合は SheetNo の記述が必須です");
@@ -88,11 +89,13 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
                     Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の FromTo で SheetNo を指定した場合は ClusterID の記述が必須です");
                     return false;
                 }
+                
                 // シート番号確認
                 if (ft.SheetNo < 1) {
                     Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の SheetNo の値が不正です。 SheetNo には1以上の値を設定して下さい");
                     return false;
                 }
+                
                 // クラスターID
                 if (ft.ClusterID < 0) {
                     Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の clusterID の値が不正です。 clusterID には0以上の値を設定して下さい");
@@ -113,15 +116,16 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             var reports = await _svc.Req定義一覧取得Async(_defTopName??"");
 
             if ((reports != null) && (!reports.IsEmpty)) {
-                // コレクション更新日の降順に帳票定義を並べ替えて最初の値を取り出す）
+                // 帳票定義名が一致する帳票定義から最新の更新日時の帳票定義IDを取得する
+                // （更新日の降順に帳票定義を並べ替えて最初の帳票IDを取得）
                 _defTopId = (from item in reports.Elements("items").Elements("item") 
-                            let updateDateTime = (DateTime?)item.Element("updateTime") 
-                            let id = (int?)item.Element("itemId") 
-                            orderby updateDateTime descending
-                            select id).First();
+                                let updateDateTime = (DateTime?)item.Element("updateTime") 
+                                let id = (int?)item.Element("itemId") 
+                                orderby updateDateTime descending
+                                select id).First();
             }
             if (_defTopId is null) {
-                Log.Error($"帳票定義名称'{_defTopName}'を含む帳票定義が見つかりません");
+                Log.Error($"帳票定義名称が'{_defTopName}'の帳票定義が見つかりません");
                 return false;
             }
         }
@@ -157,16 +161,22 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
                 // 定義されたシートNoとクラスターIDが存在するか？
                 bool isFind = false;
                 foreach (var repCluster in cluster) {
+
                     sheetNo = repCluster?.Element("sheetNo")?.Value;
                     clusterId = repCluster?.Element("clusterId")?.Value;
-                    if (int.TryParse(sheetNo, out var sheet)) {
-                        if (int.TryParse(clusterId, out var id)) {
-                            if (fromTo.SheetNo.Equals(sheet) && fromTo.ClusterID.Equals(id)) {
-                                isFind = true;
-                                break;
-                            }
-                        }
-                    }
+
+                    if ( !int.TryParse(sheetNo, out var sheet) )
+                        continue;
+
+                    if ( !int.TryParse(clusterId, out var id) )
+                        continue;
+
+                    if ( (!fromTo.SheetNo.Equals(sheet)) || (!fromTo.ClusterID.Equals(id)) )
+                        continue;
+
+                    //定義されたシートNoとクラスターIDが存在した
+                    isFind = true;
+                    break;
                 }
                 if (!isFind) {
                     Log.Error($"設定ファイル'{AutoReportLib.Init.SettingFileFullPath}'の sheetNo'{fromTo.SheetNo}'、clusterID'{fromTo.ClusterID}' は 帳票定義'{_defTopId}' にありません");
@@ -175,7 +185,7 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             }
         }
 
-        // 監視、正常時、異常時データ格納先のディレクトリ生成
+        // 監視、正常時、異常時データ格納先のディレクトリが無ければ生成
         if( !Directory.Exists(_settings.SourceFolder)) {
             try {
                 Directory.CreateDirectory(_settings.SourceFolder);
@@ -488,10 +498,10 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             if (csvConf.HasHeaderRecord) {
                 reader.Read();
             }
-            // データを読み込む
+            // 行データを読み込む
             while (reader.Read()) {
                 var datas = new List<string>();
-
+                // 列データを読み込む
                 for (int i = 0; i < reader.ColumnCount; i++) {
                     datas.Add(reader.GetField(i)??"");
                 }
