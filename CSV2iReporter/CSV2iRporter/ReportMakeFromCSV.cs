@@ -115,14 +115,20 @@ public class ReportMakeFromCSV(IConfigurationRoot configuration) {
             // 指定の定義情報を読み込む
             var reports = await _svc.Req定義一覧取得Async(_defTopName??"");
 
-            if ((reports != null) && (!reports.IsEmpty)) {
+            if ((reports != null) && (!reports.IsEmpty) && (reports.Elements("items").Elements("item").Count() > 0) ) {
                 // 帳票定義名が一致する帳票定義から最新の更新日時の帳票定義IDを取得する
                 // （更新日の降順に帳票定義を並べ替えて最初の帳票IDを取得）
-                _defTopId = (from item in reports.Elements("items").Elements("item") 
-                                let updateDateTime = (DateTime?)item.Element("updateTime") 
-                                let id = (int?)item.Element("itemId") 
-                                orderby updateDateTime descending
-                                select id).First();
+                //_defTopId = (from item in reports.Elements("items").Elements("item")
+                //                    let updateDateTime = (DateTime?)item.Element("updateTime") 
+                //                    let id = (int?)item.Element("itemId")
+                //                orderby updateDateTime descending
+                //                select id).First();
+                _defTopId = (from item in reports.Elements("items").Elements("item")
+                             where (string?)item.Element("name") == _defTopName
+                             let updateDateTime = (DateTime?)item.Element("updateTime")
+                             let id = (int?)item.Element("itemId")
+                             orderby updateDateTime descending
+                             select id).First();
             }
             if (_defTopId is null) {
                 Log.Error($"帳票定義名称が'{_defTopName}'の帳票定義が見つかりません");

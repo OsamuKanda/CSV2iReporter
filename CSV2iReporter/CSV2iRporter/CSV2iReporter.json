@@ -13,7 +13,7 @@
         "Level": "I"
     },
     "Convert": {
-        "DefTopName": "依頼伝票",
+        "DefTopName": "溶解配合",
         "SourceFileFolder": ".\\Request",
         "SourceFileName": "*.csv",
         "SuccessFileMoveForder": ".\\Success",
