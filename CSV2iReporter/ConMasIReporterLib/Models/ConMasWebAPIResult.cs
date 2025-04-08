@@ -3,19 +3,15 @@
 namespace ConMasIReporterLib.Models;
 
 public class ReportResult {
-    public string? topId { get; set; }
-    public string? code { get; set; }
+    public string? TopId { get; set; }
+    public string? Code { get; set; }
 }
 
 /// <summary>
 /// ConMasWebAPIの結果XMLをパースするためのクラス
 /// </summary>
-public class ConMasWebAPIResult {
-    public XDocument? ResultDocument { get; set; }
-
-    public ConMasWebAPIResult(XDocument? resultDocument) {
-        ResultDocument = resultDocument;
-    }
+public class ConMasWebAPIResult(XDocument? resultDocument) {
+    public XDocument? ResultDocument { get; set; } = resultDocument;
 
     public string? ErrorCode =>
         ResultDocument?.Element("conmas")?.Element("error")?.Element("code")?.Value;
@@ -25,11 +21,11 @@ public class ConMasWebAPIResult {
 
     public IEnumerable<ReportResult> ReportResults() {
         var results = ResultDocument?.Element("conmas")?.Element("results")?.Elements("result");
-        if (results != null) {
+        if (results is not null) {
             foreach (var result in results) {
                 yield return new ReportResult {
-                    topId = result.Element("topId")?.Value,
-                    code = result.Element("code")?.Value
+                    TopId = result.Element("topId")?.Value,
+                    Code = result.Element("code")?.Value
                 };
             }
         }

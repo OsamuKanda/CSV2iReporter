@@ -31,9 +31,9 @@ public class Init() {
     }
 
     //Serilog初期化
-    public static void InitLog(IConfigurationRoot configuration) {
-        var logFolder = configuration.GetSection("Log")["OutputPath"];
-
+    public static void InitLog(IConfiguration conf) {
+        //var logFolder = conf["OutputPath"];
+        var logPath = conf["OutputPath"]??".\\Log\\Log-.log".Replace(".\\", Path.GetDirectoryName(Environment.ProcessPath) + "\\");
         var fileTemplate = "| {Timestamp:HH:mm:ss.fff} | {Level:u4} | {ThreadId:00}:{ThreadName,24} | {Message:j} | {NewLine}{Exception}";
         var consoleTemplate = "| {Timestamp:HH:mm:ss.fff} | {Level:u4} | {ThreadId:00}:{ThreadName,24} | {Message:j} | {NewLine}{Exception}";
         var logConf = new LoggerConfiguration();
@@ -43,12 +43,12 @@ public class Init() {
            .Enrich.WithThreadId()
            .Enrich.WithThreadName().Enrich.WithProperty("ThreadName", "_")
            .Enrich.FromLogContext();
-        if (!string.IsNullOrEmpty(logFolder)) {
-            logConf.WriteTo.File( path:logFolder, rollingInterval: RollingInterval.Day, outputTemplate: fileTemplate);
+        if (!string.IsNullOrEmpty(logPath)) {
+            logConf.WriteTo.File( path:logPath, rollingInterval: RollingInterval.Day, outputTemplate: fileTemplate);
         }
         //ログレベルの設定
         logConf.MinimumLevel.Is(
-            configuration.GetSection("Log")["Level"] switch {
+            conf["Level"] switch {
                 "V" or "0" => LogEventLevel.Verbose,
                 "D" or "1" => LogEventLevel.Debug,
                 "I" or "2" => LogEventLevel.Information,

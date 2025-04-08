@@ -1,8 +1,7 @@
-﻿using ConMasIReporterLib;
-using ConMasIReporterLib.Models;
+﻿using ConMasIReporterLib.Models;
 using System.Text;
 
-namespace AutoReportLib.Services; 
+namespace ConMasIReporterLib;
 public static class ComMasWebAPIServiceEx {
     /// <summary>
     /// 帳票更新を呼び出し、

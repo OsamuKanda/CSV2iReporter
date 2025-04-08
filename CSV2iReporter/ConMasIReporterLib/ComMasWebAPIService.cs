@@ -89,11 +89,11 @@ public class ComMasWebAPIService {
 
             // 帳票更新要求の応答から更新された帳票IDを取得する
             var results = resultUpdateReport.ReportResults();
-            if (results != null) {
+            if (results is not null) {
                 var logstr = new StringBuilder();
                 foreach (var result in results) {
-                    var topId = result.topId;
-                    if (topId != null) {
+                    var topId = result.TopId;
+                    if (topId is not null) {
                         logstr.Append($" {topId}");
                     }
                 }
@@ -212,6 +212,38 @@ public class ComMasWebAPIService {
     }
 
     /// <summary>
+    /// ファイルを作成せずに送信
+    /// </summary>
+    /// <param name="fnam"></param>
+    /// <returns></returns>
+    public async Task<ConMasWebAPIResult> Req自動帳票作成Xml2Async(string data) {
+        if (!await LoginAsync()) {
+            return new ConMasWebAPIResult(null);
+        }
+
+        // 自動帳票作成要求を行う
+        var resultAutoGenerate = new ConMasWebAPIResult(await _client.AutoGenerateAsync(_url
+            , "xml"
+            , Encoding.UTF8
+            , 1//1"を指定する事で、アップロードファイル中の"作成ユーザー"のユーザーが帳票登録者として登録される。
+            , 1//"1"を指定する事で、アップロードファイル中の"ラベル"が階層設定されていた場合に最下層のラベルのみに紐づけられます。
+            , data
+            , "upload.csv"
+            ));
+
+        // 自動帳票作成要求の応答から生成された帳票IDを取得する
+        var list作成ID = GetList作成ID(resultAutoGenerate);
+#if false // 帳票の状態を入力完了にしない
+        if (list作成ID.Any()) {
+            await 作成した自動帳票を入力完了にするAsync(list作成ID);
+        }
+#endif
+        await LogoutAsync();
+
+        return resultAutoGenerate;
+    }
+
+    /// <summary>
     /// 帳票ファイル取得
     /// </summary>
     /// <param name="帳票ID"></param>
@@ -248,11 +280,11 @@ public class ComMasWebAPIService {
             Log.Information($"ConMasWebAPI AutoGenerate 成功");
 
             var results = resultAutoGenerate.ReportResults();
-            if (results != null) {
+            if (results is not null) {
                 var logstr = new StringBuilder();
                 foreach (var result in results) {
-                    var topId = result.topId;
-                    if (topId != null) {
+                    var topId = result.TopId;
+                    if (topId is not null) {
                         list作成ID.Add(int.Parse(topId));
                         logstr.Append($" {topId}");
                     }
@@ -284,11 +316,11 @@ public class ComMasWebAPIService {
 
             // 帳票更新要求の応答から更新された帳票IDを取得する
             var results = resultUpdateReport.ReportResults();
-            if (results != null) {
+            if (results is not null) {
                 var logstr = new StringBuilder();
                 foreach (var result in results) {
-                    if (result.topId != null) {
-                        logstr.Append($" {result.topId}");
+                    if (result.TopId is not null) {
+                        logstr.Append($" {result.TopId}");
                     }
                 }
                 Log.Information($"　→更新帳票ID = {logstr}");

@@ -1,23 +1,29 @@
 {
     "ConMasWeb": {
-        "Url": "https://ircl033i6w.conmas-i-reporter.com/ConMasAPIZ5F86K/Rests/APIExecute.aspx",
+        "Url": "https://ircloud-trial1.conmas-i-reporter.com/ConMasAPINF1FB/Rests/APIExecute.aspx",
         "User": "conmasadmin",
-        "Password": "DNWFUYVR",
+        "Password": "tc8159",
+        "ProxyServer": "",
+        "ProxyUserName": "",
+        "ProxyPassword": "",
+        "ProxyDomain": ""
     },
     "Log": {
-        "OutputPath": "..\\Log\\溶解Log-.txt",
+        "OutputPath": ".\\Log\\Log-.txt",
         "Level": "I"
     },
     "Convert": {
-        "DefTopName": "溶解配合",
-        "InputPath":".\\input",
+        "DefTopName": "溶解日誌",
+        "InputPath": ".\\Input",
         "InputFilePattern": "*.csv",
-        "SuccessFileMovePath": "\\Success",
+        "OutputPath": ".",
+        "OutputFileName": "{FileName}.xml",
+        "SuccessFileMovePath": ".\\Success",
         "ErrorFileMovePath": ".\\Error",
         "Encode": "shift-jis",
         "HasHeaderRecord": true,
-        "RepTopName": "{7}_{3:yyyyMMdd}_{10}",
-        // "LabelName": "[icon=1]ソリッド配合/{7}",
+        "RepTopName": "{7}_{3:yyyyMMdd}_{1}",
+        "LabelName": "[icon=1]溶解/{7}/{3:yyyyMMdd}/{1}",
         "Delimiter": ",",
         "CsvColumn": [
             {
@@ -28,7 +34,7 @@
         "Remarks": [
             {
                 "No": 2,
-                "Output": "ソリッド配合"
+                "Output": "溶解"
             },
             {
                 "No": 3,

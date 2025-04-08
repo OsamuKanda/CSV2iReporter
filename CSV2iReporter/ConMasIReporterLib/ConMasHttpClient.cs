@@ -36,8 +36,8 @@ public class ConMasHttpClient : IDisposable, IConMasWebAPIClient {
             ch = new HttpClientHandler { UseProxy = true };
             if (proxyServer != "") {
                 ch.Proxy = new WebProxy(proxyServer);
-                if (proxyUserName != null) {
-                    if (proxyDomain != null) {
+                if (proxyUserName is not null) {
+                    if (proxyDomain is not null) {
                         ch.Proxy.Credentials = new NetworkCredential(proxyUserName, proxyPassword, proxyDomain);
                     } else {
                         ch.Proxy.Credentials = new NetworkCredential(proxyUserName, proxyPassword);

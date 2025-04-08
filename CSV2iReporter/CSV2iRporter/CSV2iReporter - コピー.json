@@ -1,34 +1,39 @@
 {
     "ConMasWeb": {
-        "Url": "https://ircl033i6w.conmas-i-reporter.com/ConMasAPIZ5F86K/Rests/APIExecute.aspx",
+        "Url": "https://ircloud-trial1.conmas-i-reporter.com/ConMasAPINF1FB/Rests/APIExecute.aspx",
         "User": "conmasadmin",
-        "Password": "DNWFUYVR",
+        "Password": "tc8159",
+        "ProxyServer": "",
+        "ProxyUserName": "",
+        "ProxyPassword": "",
+        "ProxyDomain": ""
     },
     "Log": {
-        "OutputPath": "..\\Log\\溶解Log-.txt",
+        "OutputPath": ".\\Log\\Log-.txt",
         "Level": "I"
     },
     "Convert": {
-        "DefTopName": "溶解配合",
-        "InputPath":".\\input",
+        "DefTopName": "フラックス塗装配合伝票",
+        "InputPath": ".\\Input",
         "InputFilePattern": "*.csv",
-        "SuccessFileMovePath": "\\Success",
+        "OutputPath": ".",
+        "OutputFileName": "{FileName}.xml",
+        "SuccessFileMovePath": ".\\Success",
         "ErrorFileMovePath": ".\\Error",
         "Encode": "shift-jis",
         "HasHeaderRecord": true,
-        "RepTopName": "{7}_{3:yyyyMMdd}_{10}",
-        // "LabelName": "[icon=1]ソリッド配合/{7}",
+        "RepTopName": "{伝票種別}_{7}_{4:yyyyMMdd}_{1}",
         "Delimiter": ",",
         "CsvColumn": [
             {
-                "No": 3,
+                "No": 4,
                 "DateFormat": "yyyy/MM/dd"
             }
         ],
         "Remarks": [
             {
                 "No": 2,
-                "Output": "ソリッド配合"
+                "Output": "配合"
             },
             {
                 "No": 3,
@@ -44,7 +49,7 @@
             },
             {
                 "No": 10,
-                "Output": "溶解"
+                "Output": "電弧棒"
             }
         ],
         "Sheet": [
@@ -393,7 +398,123 @@
                     },
                     {
                         "Id": 85,
-                        "Output": "溶解"
+                        "Output": "{86}"
+                    },
+                    {
+                        "Id": 86,
+                        "Output": "{87}"
+                    },
+                    {
+                        "Id": 87,
+                        "Output": "{88}"
+                    },
+                    {
+                        "Id": 88,
+                        "Output": "{89}"
+                    },
+                    {
+                        "Id": 89,
+                        "Output": "{90}"
+                    },
+                    {
+                        "Id": 90,
+                        "Output": "{91}"
+                    },
+                    {
+                        "Id": 91,
+                        "Output": "{92}"
+                    },
+                    {
+                        "Id": 92,
+                        "Output": "{93}"
+                    },
+                    {
+                        "Id": 93,
+                        "Output": "{94}"
+                    },
+                    {
+                        "Id": 94,
+                        "Output": "{95}"
+                    },
+                    {
+                        "Id": 95,
+                        "Output": "{96}"
+                    },
+                    {
+                        "Id": 96,
+                        "Output": "{97}"
+                    },
+                    {
+                        "Id": 97,
+                        "Output": "{98}"
+                    },
+                    {
+                        "Id": 98,
+                        "Output": "{99}"
+                    },
+                    {
+                        "Id": 99,
+                        "Output": "{100}"
+                    },
+                    {
+                        "Id": 100,
+                        "Output": "{101}"
+                    },
+                    {
+                        "Id": 101,
+                        "Output": "{102}"
+                    },
+                    {
+                        "Id": 102,
+                        "Output": "{103}"
+                    },
+                    {
+                        "Id": 103,
+                        "Output": "{104}"
+                    },
+                    {
+                        "Id": 104,
+                        "Output": "{105}"
+                    },
+                    {
+                        "Id": 105,
+                        "Output": "{106}"
+                    },
+                    {
+                        "Id": 106,
+                        "Output": "{107}"
+                    },
+                    {
+                        "Id": 107,
+                        "Output": "{108}"
+                    },
+                    {
+                        "Id": 108,
+                        "Output": "{109}"
+                    },
+                    {
+                        "Id": 109,
+                        "Output": "{110}"
+                    },
+                    {
+                        "Id": 110,
+                        "Output": "{111}"
+                    },
+                    {
+                        "Id": 111,
+                        "Output": "{112}"
+                    },
+                    {
+                        "Id": 112,
+                        "Output": "{113}"
+                    },
+                    {
+                        "Id": 113,
+                        "Output": "{114}"
+                    },
+                    {
+                        "Id": 114,
+                        "Output": "配合"
                     }
                 ]
 

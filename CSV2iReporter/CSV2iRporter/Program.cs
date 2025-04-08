@@ -19,15 +19,15 @@ for (var i = 0; i < args.Length; i++) {
 }
 
 //設定ファイル読み出し
-var configuration = AutoReportLib.Init.ReadSettingFile(settingFile);
+var conf = AutoReportLib.Init.ReadSettingFile(settingFile);
 
 //Serilog初期化
-AutoReportLib.Init.InitLog(configuration);
+AutoReportLib.Init.InitLog(conf.GetSection("Log"));
 
 // i-Reporter自動帳票連携ソフト準備
-var apl = new ReportMakeFromCSV(configuration);
+var apl = new ReportMakeFromCSV(conf);
 
-Log.Information($"アプリケーションが起動しました。実行ファイル名'{Path.GetDirectoryName(Environment.ProcessPath)}'");
+Log.Information($"アプリケーションが起動しました。実行ファイル名'{Environment.ProcessPath}'");
 Log.Information($"設定ファイル名'{AutoReportLib.Init.SettingFileFullPath}'");
 
 // 設定ファイル、帳票定義ファイルチェック
@@ -39,7 +39,7 @@ try {
         await apl.Execute();
     }
 }catch(Exception ex) {
-    Log.Fatal(ex, $"予期しないエラーが発生しました");
+    Log.Fatal(ex, $"予期しないエラーが発生しました[");
 }
 
 

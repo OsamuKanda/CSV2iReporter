@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
-using ConMasIReporterLib;
 
-namespace AutoReportMake.Services; 
+namespace ConMasIReporterLib;
 /// <summary>
 /// ComMasWebAPI関連
 /// </summary>
